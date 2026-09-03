@@ -1,0 +1,93 @@
+
+(/true.
+(/false.
+(/not.
+(/if_then_else.
+
+(/cn_0.
+(/cn_1.
+(/cn_succ.
+(/cn_pred.
+(/cn_2.
+(/cn_3.
+(/cn_4.
+(/cn_5.
+(/cn_6.
+(/cn_7.
+(/cn_exp.
+(/cn_add.
+(/cn_mult.
+(/cn_sub.
+(/cn_iszero.
+(/cn_fact.
+
+{INSERT_WRAPPED_CODE}
+
+
+
+) # cn_fact =
+(/cn_fact./n. if_then_else (cn_iszero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n ))
+
+) # cn_iszero =
+(/n./x./y. n(/z.y)x)
+
+) # cn_sub =
+(/n./m. m cn_pred n)
+
+) # cn_mult =
+(/n./m./f. n (m f))
+
+) # cn_add =
+(/n./m./f./x. n f (m f x))
+
+) # cn_exp =
+(/n./m. m n)
+
+) # cn_7 =
+(cn_succ cn_6)
+
+) # cn_6 =
+(cn_succ cn_5)
+
+) # cn_5 =
+(cn_succ cn_4)
+
+) # cn_4 =
+(cn_succ cn_3)
+
+) # cn_3 =
+(cn_succ cn_2)
+
+) # cn_2 =
+(cn_succ cn_1)
+
+) # cn_pred =
+(/n./f./x. n (/g./h. h (g f)) (/u.x) (/z.z)) # pred de Kleene
+
+) # cn_succ =
+(/n./f./x. f(n f x))
+
+) # cn_1 =
+(/f./x. f x)
+
+) # cn_0 =
+(/f./x. x)
+
+# ----- ^ Church numerals ^ -----
+
+
+
+) # if_then_else =
+(/x.x)
+
+) # not =
+(/b.b false true)
+
+) # false =
+(/_false_x./y.y)
+
+) # true =
+(/_true_x./y._true_x)
+
+# ----- ^ Booleans ^ -----
+

@@ -1,0 +1,15 @@
+#wrap_with_template ./lambda_codes/library.template.lc
+
+# not true
+
+# cn_succ cn_1
+
+# cn_4
+
+# cn_5 not false  # Return false if the number is even, true if odd
+
+# /y. (/x.x x) (/x.if_then_else x x)  # Infinite recursion
+
+# (cn_fact cn_fact cn_3)
+
+(cn_succ (cn_fact cn_fact cn_5)) not false
