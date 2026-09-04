@@ -19,6 +19,7 @@ from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
 # TODO: Compare the performance of reduction vs Expr.eval()
 # TODO: Test eval on factorial of 5. It's fast! But is it correct?
 # TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
+# TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
 # TODO: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
 # TODO: Write some LC functions
 #   - booleans
@@ -71,7 +72,7 @@ class Ast:
         self.kind = kind
         self.args = args
 
-    def substitute(self, bindings: Mapping[str, Expr], nonfree_vars: frozenset[str], allow_unbound_vars = False):
+    def substitute_exprs(self, bindings: Mapping[str, Expr], nonfree_vars: frozenset[str]):
         '''
         Returns self with all free variables replaced with their bindings.
 
@@ -84,83 +85,22 @@ class Ast:
         if self.kind == VARIABLE:
             if self.variable_name in nonfree_vars:
                 return self
-            if allow_unbound_vars and self.variable_name not in bindings:
-                return self
             assert self.variable_name in bindings, 'Unbound variable {!r}'.format(self.variable_name)
-            return bindings[self.variable_name].to_substituted_ast(allow_unbound_vars)
+            return bindings[self.variable_name].to_substituted_ast()
         elif self.kind == FUNCTION:
             return Ast(
                 FUNCTION,
                 self.variable_name,
-                self.function_body.substitute(bindings, nonfree_vars.union({self.variable_name}), allow_unbound_vars),
+                self.function_body.substitute_exprs(bindings, nonfree_vars.union({self.variable_name})),
             )
         elif self.kind == CALL:
             substituted_args = tuple(
-                arg.substitute(bindings, nonfree_vars, allow_unbound_vars)
+                arg.substitute_exprs(bindings, nonfree_vars)
                 for arg in self.args
             )
             return Ast(CALL, *substituted_args)
         else:
             assert False
-
-    def _to_shorter_ast_partially(self):
-        '''
-        Attempt to return a shorter version of self by substituting variables. This is best-effort.
-        '''
-        if self.kind == VARIABLE:
-            return self
-        elif self.kind == FUNCTION:
-            return Ast(
-                FUNCTION,
-                self.variable_name,
-                self.function_body.to_shorter_ast(),
-            )
-        elif self.kind == CALL:
-            shorter_args = tuple(
-                arg.to_shorter_ast()
-                for arg in self.args
-            )
-            current_ast = Ast(CALL, *shorter_args)
-            best_ast = current_ast
-            best_ast_len = len(best_ast.to_code())
-            for i in range(len(current_ast.args) - 1):
-                f = current_ast.args[0]
-                a = current_ast.args[1]
-                remaining_args = current_ast.args[2:]
-                if f.kind != FUNCTION:
-                    # Evaluating f at this point would be complicated. Instead, give up.
-                    break
-                # Apply f to a.
-                new_f = f.function_body.substitute(
-                    MappingProxyType({f.variable_name: Expr(a, MappingProxyType({}))}),
-                    frozenset({}),
-                    allow_unbound_vars = True,
-                )
-                if len(remaining_args) > 0:
-                    current_ast = Ast(CALL, *((new_f,) + remaining_args))
-                else:
-                    current_ast = new_f
-                current_ast_len = len(current_ast.to_code())
-                if current_ast_len < best_ast_len:
-                    best_ast = current_ast
-                    best_ast_len = current_ast_len
-            return best_ast
-        else:
-            assert False
-
-    def to_shorter_ast(self):
-        '''
-        Attempt to return a shorter version of self by substituting variables. This is best-effort.
-        '''
-        result = self
-        old_len = len(result.to_code())
-        while True:
-            result = result._to_shorter_ast_partially()
-            new_len = len(result.to_code())
-            assert new_len <= old_len
-            if new_len >= old_len:
-                return result
-            old_len = new_len
 
     def to_tuple(self):
         return (self.kind, *(arg if type(arg) is str else arg.to_tuple() for arg in self.args))
@@ -244,13 +184,16 @@ class Expr:
     '''
     Allows you to lazily evaluate lambda calculus code.
 
-    An Expr is an Ast plus some variable bindings.
-    Think of an Expr as a lambda calculus 'value' that can be passed around or
-    assigned to a variable.
+    An Expr is an Ast plus variable bindings for all of the Ast's free variables.
+    Think of an Expr as a closure, or as a lambda calculus 'value' that can be
+    passed around or assigned to a variable.
 
-    Any Expr can be evaluated (lazily). Once evaluated, an Expr will reduce to a
-    lambda calculus 'value', which is a function. In other words, once
-    evaluated, the Expr's Ast will be of kind FUNCTION.
+    Note that an Expr will never have free variables.
+    (More precisely, Expr.to_substituted_ast() will never have free variables,
+    because the Expr.ast's free variables are all bound to the Expr.bindings.)
+
+    Any Expr can be evaluated (lazily). Once evaluated, an Expr will resolve to
+    an Ast of kind FUNCTION.
 
     An Expr can point at another Expr, which means they are the same value.
     The data structure is: (ast, bindings) | pointer_to_another_expr
@@ -262,6 +205,7 @@ class Expr:
         self.bindings = bindings
         self.pointer = None # May point to another Expr. In that case, self.ast and self.bindings will be set to None.
         self.substituted_ast = None # A cached result to avoid recomputing it.
+        # TODO: Assert that all the ast's free variables are bound in the bindings.
 
     def resolve(self):
         '''
@@ -331,23 +275,14 @@ class Expr:
             self._eval_partially()
         return self.resolve()
 
-    def to_substituted_ast(self, allow_unbound_vars = False):
+    def to_substituted_ast(self):
         '''
         Returns self.ast with all free variables replaced with their bindings.
         '''
         self = self.resolve()
-        if self.substituted_ast is not None:
-            return self.substituted_ast
-        if len(self.bindings) == 0 and allow_unbound_vars:
-            # There's nothing to substitute.
-            return self.ast
-        substituted_ast = self.ast.substitute(self.bindings, frozenset({}), allow_unbound_vars).to_shorter_ast()
-        if not allow_unbound_vars:
-            # We can't bluntly cache the result if allow_unbound_vars is True,
-            # because it would cause future calls where allow_unbound_vars is False
-            # to behave incorrectly.
-            self.substituted_ast = substituted_ast
-        return substituted_ast
+        if self.substituted_ast is None:
+            self.substituted_ast = self.ast.substitute_exprs(self.bindings, frozenset({}))
+        return self.substituted_ast
 
     def to_code(self, parens = False):
         return self.to_substituted_ast().to_code(parens)
@@ -427,6 +362,8 @@ def run_tests():
 
 
 if __name__ == '__main__':
+    sys.setrecursionlimit(5000)
+
     if len(sys.argv) == 2 and sys.argv[1] == 'test':
         run_tests()
     elif len(sys.argv) == 2 and sys.argv[1] == 'run':
