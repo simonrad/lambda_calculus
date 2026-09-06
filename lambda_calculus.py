@@ -13,6 +13,7 @@ from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
 # Done: Evaluate LC code (lazily)
 # Done: Implement basic templates
 # Done: Print the Expr including its bindings: Substitute all the free variables with their bindings.
+# Done: Enforce that CALLs are only 1 argument
 
 # TODO: Fully substitute (reduce) the resulting Ast
 #   - Watch out for infinite recursion; in that case we cannot fully substitute.
@@ -55,20 +56,22 @@ class Ast:
         assert kind in AST_TYPES
         if kind == VARIABLE:
             assert len(args) == 1 # variable_name
-            assert type(args[0]) is str
             self.variable_name = args[0]
+            assert type(self.variable_name) is str
             assert is_valid_identifier(self.variable_name)
         elif kind == FUNCTION:
             assert len(args) == 2 # variable_name, ast
-            assert type(args[0]) is str
-            assert type(args[1]) is Ast
             self.variable_name = args[0]
             self.function_body = args[1]
+            assert type(self.variable_name) is str
+            assert type(self.function_body) is Ast
             assert is_valid_identifier(self.variable_name)
         elif kind == CALL:
-            assert len(args) >= 2 # ast, ast, ...
-            for arg in args:
-                assert type(arg) is Ast
+            assert len(args) == 2 # ast, ast
+            self.function = args[0]
+            self.argument = args[1]
+            assert type(self.function) is Ast
+            assert type(self.argument) is Ast
         self.kind = kind
         self.args = args
 
@@ -112,7 +115,7 @@ class Ast:
             result = '{}{}.{}'.format(LAMBDA, self.variable_name, self.function_body.to_code(False))
             return '(' + result + ')' if parens else result
         elif self.kind == CALL:
-            result = ' '.join(arg.to_code(True) for arg in self.args)
+            result = '{} {}'.format(self.function.to_code(self.function.kind != CALL), self.argument.to_code(True))
             return '(' + result + ')' if parens else result
 
 def is_valid_identifier(variable_name):
@@ -174,10 +177,10 @@ def parse(lc_code: str):
             ast_list.append(Ast(VARIABLE, variable_name))
 
     assert len(ast_list) >= 1
-    if len(ast_list) >= 2:
-        return Ast(CALL, *ast_list)
-    else:
-        return ast_list[0]
+    result = ast_list[0]
+    for ast in ast_list[1:]:
+        result = Ast(CALL, result, ast)
+    return result
 
 
 class Expr:
@@ -259,10 +262,8 @@ class Expr:
                 Expr(arg_ast, self.bindings)
                 for arg_ast in self.ast.args
             )
-            assert len(arg_exprs) >= 2
-            result = arg_exprs[0]
-            for arg in arg_exprs[1:]:
-                result = result.apply(arg)
+            assert len(arg_exprs) == 2
+            result = arg_exprs[0].apply(arg_exprs[1])
             self._set_pointer(result)
         else:
             assert False
