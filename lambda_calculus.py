@@ -7,6 +7,7 @@ An interpreter (parser and evaluator) of lambda calculus code.
 import sys
 from types import MappingProxyType # MappingProxyType is like a frozendict.
 from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
+from functools import cached_property, lru_cache, wraps
 
 
 # Done: Parse LC code
@@ -15,8 +16,8 @@ from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
 # Done: Print the Expr including its bindings: Substitute all the free variables with their bindings.
 # Done: Enforce that CALLs are only 1 argument
 
-# TODO: Fully substitute (reduce) the resulting Ast
-#   - Watch out for infinite recursion; in that case we cannot fully substitute.
+# TODO: Replace MappingProxyType with frozendict [https://pypi.org/project/frozendict/]
+# TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 # TODO: Test eval on factorial of 5. It's fast! But is it correct?
 # TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
@@ -24,6 +25,7 @@ from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
 # TODO: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
 # TODO: Write some LC functions
 #   - booleans
+#   - optional values
 #   - pairs
 #   - lists
 #     - reverse
@@ -33,8 +35,6 @@ from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
 #     - subtract
 #     - multiply
 # TODO: Add some more test cases
-
-# TODO: Alternative way of printing the evaluated Expr: Build the complete list of all unique Exprs, and print each Expr along with its required var name replacements (e.g. 'with x = x_11').
 # TODO: Consider passing debug info about code location into parse() and Ast()
 
 
@@ -47,6 +47,24 @@ VARIABLE = 'var'
 FUNCTION = 'func'
 CALL = 'call'
 AST_TYPES = (VARIABLE, FUNCTION, CALL)
+
+
+def memoize_method(maxsize = 128):
+    def decorator(func):
+        @wraps(func)
+        def method_wrapper(self, *args, **kwargs):
+            # Create an instance-specific lru_cache if it doesn't exist
+            cache_name = f'_cache_{func.__name__}'
+            if not hasattr(self, cache_name):
+                # Bind the cache to a local bound method wrapper
+                bound_cache = lru_cache(maxsize = maxsize)(func.__get__(self, type(self)))
+                setattr(self, cache_name, bound_cache)
+
+            # Call the instance-specific cache
+            return getattr(self, cache_name)(*args, **kwargs)
+        return method_wrapper
+    return decorator
+
 
 class Ast:
     '''
