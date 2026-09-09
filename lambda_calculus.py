@@ -5,8 +5,7 @@ An interpreter (parser and evaluator) of lambda calculus code.
 '''
 
 import sys
-from types import MappingProxyType # MappingProxyType is like a frozendict.
-from collections.abc import Mapping # Used in type hints as Mapping[KT, VT].
+from frozendict import frozendict # Third-party library [https://pypi.org/project/frozendict/]
 from functools import cached_property, lru_cache, wraps
 
 
@@ -15,8 +14,8 @@ from functools import cached_property, lru_cache, wraps
 # Done: Implement basic templates
 # Done: Print the Expr including its bindings: Substitute all the free variables with their bindings.
 # Done: Enforce that CALLs are only 1 argument
+# Done: Replace MappingProxyType with frozendict [https://pypi.org/project/frozendict/]
 
-# TODO: Replace MappingProxyType with frozendict [https://pypi.org/project/frozendict/]
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 # TODO: Test eval on factorial of 5. It's fast! But is it correct?
@@ -93,7 +92,7 @@ class Ast:
         self.kind = kind
         self.args = args
 
-    def substitute_exprs(self, bindings: Mapping[str, Expr], nonfree_vars: frozenset[str]):
+    def substitute_exprs(self, bindings: frozendict[str, Expr], nonfree_vars: frozenset[str]):
         '''
         Returns self with all free variables replaced with their bindings.
 
@@ -101,7 +100,7 @@ class Ast:
         parameters that are not bound to a specific value, because the function
         is not yet applied.
         '''
-        assert type(bindings) is MappingProxyType
+        assert type(bindings) is frozendict
         assert type(nonfree_vars) is frozenset
         if self.kind == VARIABLE:
             if self.variable_name in nonfree_vars:
@@ -122,6 +121,10 @@ class Ast:
             return Ast(CALL, *substituted_args)
         else:
             assert False
+
+    @cached_property
+    def free_vars(self):
+        return None # TODO
 
     def to_tuple(self):
         return (self.kind, *(arg if type(arg) is str else arg.to_tuple() for arg in self.args))
@@ -219,9 +222,9 @@ class Expr:
     An Expr can point at another Expr, which means they are the same value.
     The data structure is: (ast, bindings) | pointer_to_another_expr
     '''
-    def __init__(self, ast: Ast, bindings: Mapping[str, Expr]):
+    def __init__(self, ast: Ast, bindings: frozendict[str, Expr]):
         assert type(ast) is Ast
-        assert type(bindings) is MappingProxyType
+        assert type(bindings) is frozendict
         self.ast = ast
         self.bindings = bindings
         self.pointer = None # May point to another Expr. In that case, self.ast and self.bindings will be set to None.
@@ -248,9 +251,7 @@ class Expr:
         self = self.eval()
         assert self.ast.kind == FUNCTION
 
-        new_bindings = self.bindings.copy()
-        new_bindings[self.ast.variable_name] = arg
-        new_bindings = MappingProxyType(new_bindings)
+        new_bindings = self.bindings.set(self.ast.variable_name, arg)
 
         return Expr(
             ast = self.ast.function_body,
@@ -333,7 +334,7 @@ def eval_lc(lc_code: str):
     lc_code = apply_templates(lc_code)
     lc_code = remove_comments(lc_code)
     ast = parse(lc_code)
-    expr = Expr(ast, MappingProxyType({}))
+    expr = Expr(ast, frozendict({}))
     return expr.eval()
 
 
