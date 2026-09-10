@@ -397,8 +397,15 @@ def as_list(lc_value: Ast | Expr) -> list[Ast | Expr]:
     Interprets the lc_value as a singly-linked list.
     (A list is an optional pair, where the first item is the payload and second item is the remainder list.)
     '''
-    # TODO
-    raise NotImplementedError('as_list() is not yet implemented')
+    result_list = []
+    remainder_list = lc_value
+
+    while True:
+        pair_or_none = as_optional(remainder_list)
+        if pair_or_none is None:
+            return result_list
+        item, remainder_list = as_pair(pair_or_none)
+        result_list.append(item)
 
 def as_binary_natural_number(lc_value: Ast | Expr) -> int:
     '''
