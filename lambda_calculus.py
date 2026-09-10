@@ -95,7 +95,7 @@ class Ast:
         self.kind = kind
         self.args = args
 
-    def substitute_exprs(self, bindings: frozendict[str, Expr], nonfree_vars: frozenset[str]):
+    def substitute_exprs(self, bindings: frozendict[str, Expr], nonfree_vars: frozenset[str]) -> Ast:
         '''
         Returns self with all free variables replaced with their bindings.
 
@@ -143,7 +143,7 @@ class Ast:
     def to_tuple(self):
         return (self.kind, *(arg if type(arg) is str else arg.to_tuple() for arg in self.args))
 
-    def to_code(self, parens = False):
+    def to_code(self, parens = False) -> str:
         if self.kind == VARIABLE:
             return self.variable_name
         elif self.kind == FUNCTION:
@@ -158,7 +158,7 @@ class Ast:
 def is_valid_identifier(variable_name):
     return variable_name.replace('_', 'X').isalnum() and LAMBDA not in variable_name
 
-def match_paren(lc_code: str, start_index: int):
+def match_paren(lc_code: str, start_index: int) -> int:
     '''
     Returns the index of the matching closing paren.
     '''
@@ -174,7 +174,7 @@ def match_paren(lc_code: str, start_index: int):
             return i
     assert False, 'Could not find matching close paren'
 
-def remove_comments(lc_code: str):
+def remove_comments(lc_code: str) -> str:
     return '\n'.join(
         line.split('#', 1)[0] for line in lc_code.splitlines()
     )
@@ -249,7 +249,7 @@ class Expr:
         for free_var in ast.free_vars:
             assert free_var in bindings, 'Unbound variable {!r}'.format(free_var)
 
-    def resolve(self):
+    def resolve(self) -> Expr:
         '''
         Returns the non-pointing Expr that self directly or indirectly points at, or self.
         '''
@@ -261,7 +261,7 @@ class Expr:
         self.pointer = result # Compress the chain of pointers to make future resolves faster.
         return result
 
-    def apply(self, arg: Expr):
+    def apply(self, arg: Expr) -> Expr:
         '''
         Returns a new Expr that is the result of applying the function `self` to the argument `arg`.
         '''
@@ -313,7 +313,7 @@ class Expr:
             self._eval_partially()
         return self.resolve()
 
-    def to_substituted_ast(self):
+    def to_substituted_ast(self) -> Ast:
         '''
         Returns self.ast with all free variables replaced with their bindings.
         '''
@@ -322,7 +322,7 @@ class Expr:
             self.substituted_ast = self.ast.substitute_exprs(self.bindings, frozenset({}))
         return self.substituted_ast
 
-    def to_code(self, parens = False):
+    def to_code(self, parens = False) -> str:
         return self.to_substituted_ast().to_code(parens)
 
 
@@ -382,8 +382,15 @@ def as_pair(lc_value: Ast | Expr) -> tuple[Ast | Expr, Ast | Expr]:
     Interprets the lc_value as a pair.
     (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Church_pairs )
     '''
-    # TODO
-    raise NotImplementedError('as_pair() is not yet implemented')
+    make_arg = make_ast_or_expr(type(lc_value))
+
+    true_lc = '/_true_x./y._true_x'
+    false_lc = '/_false_x./y.y'
+
+    first  = lc_value.apply(make_arg(true_lc))
+    second = lc_value.apply(make_arg(false_lc))
+
+    return (first, second)
 
 def as_list(lc_value: Ast | Expr) -> list[Ast | Expr]:
     '''
@@ -402,7 +409,7 @@ def as_binary_natural_number(lc_value: Ast | Expr) -> int:
     raise NotImplementedError('as_binary_number() is not yet implemented')
 
 
-def apply_templates(lc_code: str):
+def apply_templates(lc_code: str) -> str:
     '''
     Finds any WRAP_DIRECTIVEs at the top of lc_code and applies them.
     '''
@@ -423,11 +430,14 @@ def apply_templates(lc_code: str):
         lc_code = contents.replace(WRAP_PLACEHOLDER, lc_code)
     return lc_code
 
-
-def eval_lc(lc_code: str):
+def parse_fully(lc_code: str) -> Ast:
     lc_code = apply_templates(lc_code)
     lc_code = remove_comments(lc_code)
     ast = parse(lc_code)
+    return ast
+
+def eval_lc(lc_code: str) -> Expr:
+    ast = parse_fully(lc_code)
     expr = Expr(ast, frozendict({}))
     return expr.eval()
 
