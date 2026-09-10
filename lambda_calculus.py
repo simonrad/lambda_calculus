@@ -412,8 +412,12 @@ def as_binary_natural_number(lc_value: Ast | Expr) -> int:
     Interprets the lc_value as a binary unsigned int (>= 0).
     (A binary unsigned int is a list of booleans (bits) where the head is the LEAST significant bit.)
     '''
-    # TODO
-    raise NotImplementedError('as_binary_number() is not yet implemented')
+    bits = [int(as_bool(item)) for item in as_list(lc_value)]
+
+    return sum(
+        bit << i
+        for i, bit in enumerate(bits)
+    )
 
 
 def apply_templates(lc_code: str) -> str:
