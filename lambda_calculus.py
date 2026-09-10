@@ -7,6 +7,7 @@ An interpreter (parser and evaluator) of lambda calculus code.
 import sys
 from frozendict import frozendict # Third-party library [https://pypi.org/project/frozendict/]
 from functools import cached_property, lru_cache, wraps
+from types import NoneType
 
 
 # Done: Parse LC code
@@ -124,6 +125,10 @@ class Ast:
         else:
             assert False
 
+    def apply(self, arg: Ast) -> Ast:
+        # TODO
+        raise NotImplementedError('Ast.apply() is not yet implemented')
+
     @cached_property
     def free_vars(self) -> frozenset[str]:
         if self.kind == VARIABLE:
@@ -174,7 +179,7 @@ def remove_comments(lc_code: str):
         line.split('#', 1)[0] for line in lc_code.splitlines()
     )
 
-def parse(lc_code: str):
+def parse(lc_code: str) -> Ast:
     '''
     Returns an Ast of lc_code.
     Pre: Comments have already been removed from lc_code.
@@ -321,6 +326,61 @@ class Expr:
         return self.to_substituted_ast().to_code(parens)
 
 
+def as_bool(lc_value: Ast | Expr) -> bool:
+    '''
+    Interprets the lc_value as a boolean.
+    (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Church_Booleans )
+    '''
+    make_arg = lambda lc_code: parse(lc_code)
+    if type(lc_value) is Expr:
+        make_arg = lambda lc_code: Expr(parse(lc_code), frozendict({}))
+
+    true_lc = '/_true_x./y._true_x'
+    false_lc = '/_false_x./y.y'
+
+    result_lc = lc_value.apply(make_arg(true_lc)).apply(make_arg(false_lc)).to_code()
+
+    if result_lc == true_lc:
+        return True
+    elif result_lc == false_lc:
+        return False
+    else:
+        assert False, 'as_bool(): LC value did not behave like a boolean'
+
+def as_optional(lc_value: Ast | Expr) -> (Ast | Expr | NoneType):
+    '''
+    Interprets the lc_value as an optional value.
+    (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Optional_values )
+    If the lc_value is nil, returns None.
+    '''
+    # TODO
+    raise NotImplementedError('as_optional() is not yet implemented')
+
+def as_pair(lc_value: Ast | Expr) -> tuple[Ast | Expr, Ast | Expr]:
+    '''
+    Interprets the lc_value as a pair.
+    (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Church_pairs )
+    '''
+    # TODO
+    raise NotImplementedError('as_pair() is not yet implemented')
+
+def as_list(lc_value: Ast | Expr) -> list[Ast | Expr]:
+    '''
+    Interprets the lc_value as a singly-linked list.
+    (A list is an optional pair, where the first item is the payload and second item is the remainder list.)
+    '''
+    # TODO
+    raise NotImplementedError('as_list() is not yet implemented')
+
+def as_binary_natural_number(lc_value: Ast | Expr) -> int:
+    '''
+    Interprets the lc_value as a binary unsigned int (>= 0).
+    (A binary unsigned int is a list of booleans (bits) where the head is the LEAST significant bit.)
+    '''
+    # TODO
+    raise NotImplementedError('as_binary_number() is not yet implemented')
+
+
 def apply_templates(lc_code: str):
     '''
     Finds any WRAP_DIRECTIVEs at the top of lc_code and applies them.
@@ -379,26 +439,26 @@ def run_tests():
             sys.exit(1)
 
     wrap_prefix_lc = '#wrap_with_template ./lambda_codes/library.template.lc\n'
-    true_lc = '/_true_x./y._true_x'
-    false_lc = '/_false_x./y.y'
+    expr_to_code = lambda expr: expr.to_code()
+    expr_to_bool = lambda expr: as_bool(expr)
 
     eval_test_cases = (
-        # (input_lc_code, expected_output_lc_code)
-        ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', '/x.x'),
-        (wrap_prefix_lc + 'cn_5 not false # Return true if odd', true_lc),
-        (wrap_prefix_lc + '(cn_fact cn_fact cn_5) not false # Return false if even', false_lc),
+        # (input_lc_code, transform_func, expected_output)
+        ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', expr_to_code, '/x.x'),
+        (wrap_prefix_lc + 'cn_5 not false # Return true if odd', expr_to_bool, True),
+        (wrap_prefix_lc + '(cn_fact cn_fact cn_5) not false # Return false if even', expr_to_bool, False),
     )
 
     print('Eval test cases:')
-    for (input_lc_code, expected_output_lc_code) in eval_test_cases:
-        actual_output_lc_code = eval_lc(input_lc_code).to_code()
-        test_does_pass = actual_output_lc_code == expected_output_lc_code
+    for (input_lc_code, transform_func, expected_output) in eval_test_cases:
+        actual_output = transform_func(eval_lc(input_lc_code))
+        test_does_pass = actual_output == expected_output
         print(' ', 'Pass' if test_does_pass else 'FAIL', ' ',
               input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
-              ' -> ', expected_output_lc_code)
+              ' -> ', expected_output)
         if not test_does_pass:
-            print('    expected: ' + expected_output_lc_code)
-            print('    actual:   ' + actual_output_lc_code)
+            print('    expected:', expected_output)
+            print('    actual:  ', actual_output)
             sys.exit(1)
 
 
