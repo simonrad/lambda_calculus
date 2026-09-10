@@ -326,14 +326,23 @@ class Expr:
         return self.to_substituted_ast().to_code(parens)
 
 
+def make_ast_or_expr(type_to_make: type):
+    assert type_to_make in (Ast, Expr)
+    if type_to_make is Ast:
+        def make_ast(lc_code: str):
+            return parse(lc_code)
+        return make_ast
+    if type_to_make is Expr:
+        def make_expr(lc_code: str):
+            return Expr(parse(lc_code), frozendict({}))
+        return make_expr
+
 def as_bool(lc_value: Ast | Expr) -> bool:
     '''
     Interprets the lc_value as a boolean.
     (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Church_Booleans )
     '''
-    make_arg = lambda lc_code: parse(lc_code)
-    if type(lc_value) is Expr:
-        make_arg = lambda lc_code: Expr(parse(lc_code), frozendict({}))
+    make_arg = make_ast_or_expr(type(lc_value))
 
     true_lc = '/_true_x./y._true_x'
     false_lc = '/_false_x./y.y'
@@ -353,8 +362,20 @@ def as_optional(lc_value: Ast | Expr) -> (Ast | Expr | NoneType):
     (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Optional_values )
     If the lc_value is nil, returns None.
     '''
-    # TODO
-    raise NotImplementedError('as_optional() is not yet implemented')
+    make_arg = make_ast_or_expr(type(lc_value))
+
+    param_name = '__very_special_nil_indicator_value'
+    nil_result_lc = '/{}.{}'.format(param_name)
+
+    result = lc_value.apply(make_arg(nil_result_lc)).apply(make_arg('/x.x'))
+    result_ast = result if isinstance(result, Ast) else result.ast
+
+    if result_ast.kind == FUNCTION and result_ast.variable_name == param_name and result.to_code() == nil_result_lc:
+        # The lc_value is nil.
+        return None
+    else:
+        # The lc_value is non-nil (some value).
+        return result
 
 def as_pair(lc_value: Ast | Expr) -> tuple[Ast | Expr, Ast | Expr]:
     '''
