@@ -378,16 +378,24 @@ def run_tests():
             print('    ' + parse(lc_code).to_code())
             sys.exit(1)
 
+    wrap_prefix_lc = '#wrap_with_template ./lambda_codes/library.template.lc\n'
+    true_lc = '/_true_x./y._true_x'
+    false_lc = '/_false_x./y.y'
+
     eval_test_cases = (
         # (input_lc_code, expected_output_lc_code)
-        ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))',  '/x.x'),
+        ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', '/x.x'),
+        (wrap_prefix_lc + 'cn_5 not false # Return true if odd', true_lc),
+        (wrap_prefix_lc + '(cn_fact cn_fact cn_5) not false # Return false if even', false_lc),
     )
 
     print('Eval test cases:')
     for (input_lc_code, expected_output_lc_code) in eval_test_cases:
         actual_output_lc_code = eval_lc(input_lc_code).to_code()
         test_does_pass = actual_output_lc_code == expected_output_lc_code
-        print(' ', 'Pass' if test_does_pass else 'FAIL', ' ', input_lc_code, ' -> ', expected_output_lc_code)
+        print(' ', 'Pass' if test_does_pass else 'FAIL', ' ',
+              input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
+              ' -> ', expected_output_lc_code)
         if not test_does_pass:
             print('    expected: ' + expected_output_lc_code)
             print('    actual:   ' + actual_output_lc_code)
