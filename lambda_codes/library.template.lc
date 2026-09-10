@@ -6,8 +6,8 @@
 (/if_then_else.
 
 ## TODO
-# (/and.
-# (/or.
+(/and.
+(/or.
 
 ## Church numerals
 (/cn_0.
@@ -29,63 +29,194 @@
 
 ## Fixed-point combinators
 ## TODO
-# (/Y.
-# (/Z.
-# (/S.
-# (/T.
+(/Y.
+(/Z.
+(/S.
+(/T.
 
 ## Optional values
 ## TODO
-# (/nil.
-# (/none.
-# (/some.
-# (/is_nil.
-# (/is_none.
+(/nil.
+(/none.
+(/some.
+(/is_nil.
+(/is_none.
 
 ## Pairs
 ## TODO
-# (/pair.
-# (/first.
-# (/second.
+(/pair.
+(/first.
+(/second.
 
 ## Lists
 ## TODO
-# (/cons.
-# (/head.
-# (/tail.
+(/cons.
+(/head.
+(/tail.
 
 ## TODO
-# (/len.
-# (/reverse.
-# (/fold_from_left.
-# (/fold_from_right.
-# (/concat.
-# (/map.
-# (/flatten.
-# (/flat_map.
+(/len.
+(/reverse.
+(/fold_from_left.
+(/fold_from_right.
+(/concat.
+(/map.
+(/flatten.
+(/flat_map.
 
 ## Binary natural numbers
 ## TODO
-# (/bn_0.
-# (/incr.
-# (/decr.
-# (/cn_to_bn.
+(/bn_0.
+(/incr.
+(/decr.
+(/cn_to_bn.
 
 ## TODO
-# (/is_zero.
-# (/add.
-# (/sub.
-# (/mult.
-# (/for_range.
-# (/are_equal.
-# (/less_than.
-# (/less_or_equal.
-# (/greater_than.
-# (/greater_or_equal.
+(/is_zero.
+(/add.
+(/sub.
+(/mult.
+(/for_range.
+(/are_equal.
+(/less_than.
+(/less_or_equal.
+(/greater_than.
+(/greater_or_equal.
 
 
 
 {INSERT_WRAPPED_CODE}
+
+
+
+) # greater_or_equal =
+(/x.x) # TODO
+
+) # greater_than =
+(/x.x) # TODO
+
+) # less_or_equal =
+(/x.x) # TODO
+
+) # less_than =
+(/x.x) # TODO
+
+) # are_equal =
+(/x.x) # TODO
+
+) # for_range =
+(/x.x) # TODO
+
+) # mult =
+(/x.x) # TODO
+
+) # sub =
+(/x.x) # TODO
+
+) # add =
+(/x.x) # TODO
+
+) # is_zero =
+(/x.x) # TODO
+
+) # cn_to_bn =
+(/x.x) # TODO
+
+) # decr =
+(/x.x) # TODO
+
+) # incr =
+(/x.x) # TODO
+
+) # bn_0 =
+(/x.x) # TODO
+
+# ----- ^ Binary natural numbers ^ -----
+
+
+
+) # flat_map =
+(/x.x) # TODO
+
+) # flatten =
+(/x.x) # TODO
+
+) # map =
+(/x.x) # TODO
+
+) # concat =
+(/x.x) # TODO
+
+) # fold_from_right =
+(/x.x) # TODO
+
+) # fold_from_left =
+(/x.x) # TODO
+
+) # reverse =
+(/x.x) # TODO
+
+) # len =
+(/x.x) # TODO
+
+) # tail =
+(/x.x) # TODO
+
+) # head =
+(/x.x) # TODO
+
+) # cons =
+(/x.x) # TODO
+
+# ----- ^ Lists ^ -----
+
+
+
+) # second =
+(/x.x) # TODO
+
+) # first =
+(/x.x) # TODO
+
+) # pair =
+(/x.x) # TODO
+
+# ----- ^ Pairs ^ -----
+
+
+
+) # is_none =
+(/x.x) # TODO
+
+) # is_nil =
+(/x.x) # TODO
+
+) # some =
+(/x.x) # TODO
+
+) # none =
+(/x.x) # TODO
+
+) # nil =
+(/x.x) # TODO
+
+# ----- ^ Optional values ^ -----
+
+
+
+) # T =
+(/x.x) # TODO
+
+) # S =
+(/x.x) # TODO
+
+) # Z =
+(/x.x) # TODO
+
+) # Y =
+(/x.x) # TODO
+
+# ----- ^ Fixed-point combinators ^ -----
 
 
 
@@ -140,6 +271,12 @@
 # ----- ^ Church numerals ^ -----
 
 
+
+) # or =
+(/x.x) # TODO
+
+) # and =
+(/x.x) # TODO
 
 ) # if_then_else =
 (/x.x)
