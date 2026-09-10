@@ -89,6 +89,8 @@ class Ast:
             self.argument = args[1]
             assert type(self.function) is Ast
             assert type(self.argument) is Ast
+        else:
+            assert False
         self.kind = kind
         self.args = args
 
@@ -123,8 +125,15 @@ class Ast:
             assert False
 
     @cached_property
-    def free_vars(self):
-        return None # TODO
+    def free_vars(self) -> frozenset[str]:
+        if self.kind == VARIABLE:
+            return frozenset((self.variable_name,))
+        elif self.kind == FUNCTION:
+            return self.function_body.free_vars - {self.variable_name}
+        elif self.kind == CALL:
+            return self.function.free_vars | self.argument.free_vars
+        else:
+            assert False
 
     def to_tuple(self):
         return (self.kind, *(arg if type(arg) is str else arg.to_tuple() for arg in self.args))
@@ -138,6 +147,8 @@ class Ast:
         elif self.kind == CALL:
             result = '{} {}'.format(self.function.to_code(self.function.kind != CALL), self.argument.to_code(True))
             return '(' + result + ')' if parens else result
+        else:
+            assert False
 
 def is_valid_identifier(variable_name):
     return variable_name.replace('_', 'X').isalnum() and LAMBDA not in variable_name
@@ -229,7 +240,9 @@ class Expr:
         self.bindings = bindings
         self.pointer = None # May point to another Expr. In that case, self.ast and self.bindings will be set to None.
         self.substituted_ast = None # A cached result to avoid recomputing it.
-        # TODO: Assert that all the ast's free variables are bound in the bindings.
+        # Assert that all the ast's free variables are bound in the bindings.
+        for free_var in ast.free_vars:
+            assert free_var in bindings, 'Unbound variable {!r}'.format(free_var)
 
     def resolve(self):
         '''
@@ -367,7 +380,7 @@ def run_tests():
 
     eval_test_cases = (
         # (input_lc_code, expected_output_lc_code)
-        ('(/x./y./z.x x) (/x.x) zzz ((/x.x x) (/x.x x))',  '/x.x'),
+        ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))',  '/x.x'),
     )
 
     print('Eval test cases:')
