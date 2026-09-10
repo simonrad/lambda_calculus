@@ -1,9 +1,15 @@
 
+## Booleans
 (/true.
 (/false.
 (/not.
 (/if_then_else.
 
+## TODO
+# (/and.
+# (/or.
+
+## Church numerals
 (/cn_0.
 (/cn_1.
 (/cn_succ.
@@ -18,17 +24,75 @@
 (/cn_add.
 (/cn_mult.
 (/cn_sub.
-(/cn_iszero.
+(/cn_is_zero.
 (/cn_fact.
+
+## Fixed-point combinators
+## TODO
+# (/Y.
+# (/Z.
+# (/S.
+# (/T.
+
+## Optional values
+## TODO
+# (/nil.
+# (/none.
+# (/some.
+# (/is_nil.
+# (/is_none.
+
+## Pairs
+## TODO
+# (/pair.
+# (/first.
+# (/second.
+
+## Lists
+## TODO
+# (/cons.
+# (/head.
+# (/tail.
+
+## TODO
+# (/len.
+# (/reverse.
+# (/fold_from_left.
+# (/fold_from_right.
+# (/concat.
+# (/map.
+# (/flatten.
+# (/flat_map.
+
+## Binary natural numbers
+## TODO
+# (/bn_0.
+# (/incr.
+# (/decr.
+# (/cn_to_bn.
+
+## TODO
+# (/is_zero.
+# (/add.
+# (/sub.
+# (/mult.
+# (/for_range.
+# (/are_equal.
+# (/less_than.
+# (/less_or_equal.
+# (/greater_than.
+# (/greater_or_equal.
+
+
 
 {INSERT_WRAPPED_CODE}
 
 
 
 ) # cn_fact =
-(/cn_fact./n. if_then_else (cn_iszero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n ))
+(/cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n ))
 
-) # cn_iszero =
+) # cn_is_zero =
 (/n./x./y. n(/z.y)x)
 
 ) # cn_sub =
