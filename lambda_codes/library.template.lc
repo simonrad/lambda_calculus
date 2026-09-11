@@ -1,10 +1,5 @@
 
 ## TODO: Highest priority
-    ## Fixed-point combinators
-        ## Y
-        ## Z
-        ## S
-        ## T
     ## Optional values
         ## nil
         ## none
@@ -64,7 +59,8 @@ let {
     cn_mult = /n./m./f. n (m f);
     cn_exp = /n./m. m n;
     cn_is_zero = /n./x./y. n(/z.y)x;
-    cn_fact = /cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n );
+    cn_fact_old = /cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n );
+    cn_fact = Y /cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact (cn_pred n)) n );
 
 
     # Optional values:

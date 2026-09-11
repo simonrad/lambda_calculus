@@ -554,7 +554,7 @@ def run_tests():
         # (input_lc_code, transform_func, expected_output)
         ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', expr_to_code, '/x.x'),
         (wrap_prefix_lc + 'cn_5 not false # Return true if odd', expr_to_bool, True),
-        (wrap_prefix_lc + '(cn_fact cn_fact cn_5) not false # Return false if even', expr_to_bool, False),
+        (wrap_prefix_lc + '(cn_fact cn_5) not false # Return false if even', expr_to_bool, False),
     )
 
     print('Eval test cases:')
