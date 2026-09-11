@@ -17,25 +17,22 @@ from types import NoneType
 # Done: Print the Expr including its bindings: Substitute all the free variables with their bindings.
 # Done: Enforce that CALLs are only 1 argument
 # Done: Replace MappingProxyType with frozendict [https://pypi.org/project/frozendict/]
+# Done: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
 
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
-# TODO: Test eval on factorial of 5. It's fast! But is it correct?
-# TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
-# TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
-# TODO: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
+
 # TODO: Write some LC functions
 #   - booleans
 #   - optional values
 #   - pairs
 #   - lists
-#     - reverse
 #   - binary numbers
-#     - compare
-#     - add
-#     - subtract
-#     - multiply
+# TODO: Test eval on factorial of 5. It's fast! But is it correct?
+# TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
+# TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
 # TODO: Add some more test cases
+
 # TODO: Consider passing debug info about code location into parse() and Ast()
 
 

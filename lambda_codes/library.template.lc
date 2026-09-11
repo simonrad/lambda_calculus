@@ -37,6 +37,7 @@ let {
     # Use it like: my_recursive_function = Y   /recurse./x. some expression that calls recurse(x2)
     # Use it like: my_recursive_function = S S /recurse./x. some expression that calls recurse(x2)
     Y = /f. (/x.f(x x)) (/x.f(x x));
+    Y2 = /f. let{thing = /x.f(x x);}(thing thing); # Might memoize better than Y
     Z = /f. (/x.f(/v.x x v)) (/x.f(/v.x x v)); # Safe with eager evaluation
     S = /S./f. f (S S f); # Might memoize better than Y
     T = /T./f. f (/v.T T f v);
@@ -105,7 +106,9 @@ let {
     add = /x.x; # TODO
     sub = /x.x; # TODO
     mult = /x.x; # TODO
-    for_range = /x.x; # TODO
+    apply_n_times = /x.x; # TODO
+    bn_to_cn = /x.x; # TODO
+    compare = /x.x; # TODO
     are_equal = /x.x; # TODO
     less_than = /x.x; # TODO
     less_or_equal = /x.x; # TODO
