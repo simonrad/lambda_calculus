@@ -24,9 +24,9 @@ let {
 
     # Booleans:
     # --------------------------------------
-    true = /_true_x./y._true_x;
-    false = /_false_x./y.y;
-    not = /b.b false true;
+    true = /_true_x./y. _true_x;
+    false = /_false_x./y. y;
+    not = /b. b false true;
     and = /x.x; # TODO
     or = /x.x; # TODO
     if_then_else = /x.x;
@@ -40,37 +40,37 @@ let {
     Y2 = /f. let{thing = /x.f(x x);}(thing thing); # Might memoize better than Y
     Z = /f. (/x.f(/v.x x v)) (/x.f(/v.x x v)); # Safe with eager evaluation
     S = /S./f. f (S S f); # Might memoize better than Y
-    T = /T./f. f (/v.T T f v);
+    T = /T./f. f (/v.T T f v); # Safe with eager evaluation
 
 
     # Church numerals:
     # --------------------------------------
     cn_0 = /f./x. x;
     cn_1 = /f./x. f x;
-    cn_succ = /n./f./x. f(n f x);
-    cn_pred = /n./f./x. n (/g./h. h (g f)) (/u.x) (/z.z); # pred de Kleene
+    cn_succ = /n. /f./x. f(n f x);
+    cn_pred = /n. /f./x. n (/g./h. h (g f)) (/u.x) (/z.z); # pred de Kleene
     cn_2 = cn_succ cn_1;
     cn_3 = cn_succ cn_2;
     cn_4 = cn_succ cn_3;
     cn_5 = cn_succ cn_4;
     cn_6 = cn_succ cn_5;
     cn_7 = cn_succ cn_6;
-    cn_add = /n./m./f./x. n f (m f x);
-    cn_sub = /n./m. m cn_pred n;
-    cn_mult = /n./m./f. n (m f);
-    cn_exp = /n./m. m n;
-    cn_is_zero = /n./x./y. n(/z.y)x;
-    cn_fact_old = /cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n );
-    cn_fact = Y /cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact (cn_pred n)) n );
+    cn_add  = /n./m. /f./x. n f (m f x);
+    cn_sub  = /n./m. m cn_pred n;
+    cn_mult = /n./m. /f. n (m f);
+    cn_exp  = /n./m. m n;
+    cn_is_zero = /n. /x./y. n (/z.y) x;
+    cn_fact_old = /cn_fact. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n );
+    cn_fact = Y /cn_fact. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact (cn_pred n)) n );
 
 
     # Optional values:
     # --------------------------------------
-    nil = /x.x; # TODO
-    none = /x.x; # TODO
-    some = /x.x; # TODO
-    is_nil = /x.x; # TODO
-    is_none = /x.x; # TODO
+    none =       /if_none./if_some. if_none;
+    some = /val. /if_none./if_some. if_some val;
+    nil = none; # Conventionally, we usually use nil for empty lists and none for empty options
+    is_none = /opt. opt true /v.false;
+    is_nil = is_none;
 
 
     # Pairs:
@@ -97,20 +97,20 @@ let {
     # Enums:
     # (For enums where more values may be added in the future, use a BNN instead, to avoid pain)
     # --------------------------------------
-    e3a = /a./b./c.a;
-    e3b = /a./b./c.b;
-    e3c = /a./b./c.c;
+    e3a = /a./b./c. a;
+    e3b = /a./b./c. b;
+    e3c = /a./b./c. c;
 
-    e4a = /a./b./c./d.a;
-    e4b = /a./b./c./d.b;
-    e4c = /a./b./c./d.c;
-    e4d = /a./b./c./d.d;
+    e4a = /a./b./c./d. a;
+    e4b = /a./b./c./d. b;
+    e4c = /a./b./c./d. c;
+    e4d = /a./b./c./d. d;
 
-    e5a = /a./b./c./d./e.a;
-    e5b = /a./b./c./d./e.b;
-    e5c = /a./b./c./d./e.c;
-    e5d = /a./b./c./d./e.d;
-    e5e = /a./b./c./d./e.e;
+    e5a = /a./b./c./d./e. a;
+    e5b = /a./b./c./d./e. b;
+    e5c = /a./b./c./d./e. c;
+    e5d = /a./b./c./d./e. d;
+    e5e = /a./b./c./d./e. e;
 
 
     # Tuples:  (Like pairs, but longer)
@@ -123,7 +123,7 @@ let {
     # Binary natural numbers:
     # (A BNN is a list of booleans, where the head is the least significant bit)
     # --------------------------------------
-    bn_0 = /x.x; # TODO
+    bn_0 = nil;
     incr = /x.x; # TODO
     decr = /x.x; # TODO
     cn_to_bn = /x.x; # TODO
