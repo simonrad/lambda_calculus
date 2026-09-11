@@ -1,294 +1,120 @@
 
-## Booleans
-(/true.
-(/false.
-(/not.
-(/if_then_else.
-
-## TODO
-(/and.
-(/or.
-
-## Church numerals
-(/cn_0.
-(/cn_1.
-(/cn_succ.
-(/cn_pred.
-(/cn_2.
-(/cn_3.
-(/cn_4.
-(/cn_5.
-(/cn_6.
-(/cn_7.
-(/cn_exp.
-(/cn_add.
-(/cn_mult.
-(/cn_sub.
-(/cn_is_zero.
-(/cn_fact.
-
-## Fixed-point combinators
-## TODO
-(/Y.
-(/Z.
-(/S.
-(/T.
-
-## Optional values
-## TODO
-(/nil.
-(/none.
-(/some.
-(/is_nil.
-(/is_none.
-
-## Pairs
-## TODO
-(/pair.
-(/first.
-(/second.
-
-## Lists
-## TODO
-(/cons.
-(/head.
-(/tail.
-
-## TODO
-(/len.
-(/reverse.
-(/fold_from_left.
-(/fold_from_right.
-(/concat.
-(/map.
-(/flatten.
-(/flat_map.
-
-## Binary natural numbers
-## TODO
-(/bn_0.
-(/incr.
-(/decr.
-(/cn_to_bn.
-
-## TODO
-(/is_zero.
-(/add.
-(/sub.
-(/mult.
-(/for_range.
-(/are_equal.
-(/less_than.
-(/less_or_equal.
-(/greater_than.
-(/greater_or_equal.
-
-
-
-{INSERT_WRAPPED_CODE}
-
-
-
-) # greater_or_equal =
-(/x.x) # TODO
-
-) # greater_than =
-(/x.x) # TODO
-
-) # less_or_equal =
-(/x.x) # TODO
-
-) # less_than =
-(/x.x) # TODO
-
-) # are_equal =
-(/x.x) # TODO
-
-) # for_range =
-(/x.x) # TODO
-
-) # mult =
-(/x.x) # TODO
-
-) # sub =
-(/x.x) # TODO
-
-) # add =
-(/x.x) # TODO
-
-) # is_zero =
-(/x.x) # TODO
-
-) # cn_to_bn =
-(/x.x) # TODO
-
-) # decr =
-(/x.x) # TODO
-
-) # incr =
-(/x.x) # TODO
-
-) # bn_0 =
-(/x.x) # TODO
-
-# ----- ^ Binary natural numbers ^ -----
-
-
-
-) # flat_map =
-(/x.x) # TODO
-
-) # flatten =
-(/x.x) # TODO
-
-) # map =
-(/x.x) # TODO
-
-) # concat =
-(/x.x) # TODO
-
-) # fold_from_right =
-(/x.x) # TODO
-
-) # fold_from_left =
-(/x.x) # TODO
-
-) # reverse =
-(/x.x) # TODO
-
-) # len =
-(/x.x) # TODO
-
-) # tail =
-(/x.x) # TODO
-
-) # head =
-(/x.x) # TODO
-
-) # cons =
-(/x.x) # TODO
-
-# ----- ^ Lists ^ -----
-
-
-
-) # second =
-(/x.x) # TODO
-
-) # first =
-(/x.x) # TODO
-
-) # pair =
-(/x.x) # TODO
-
-# ----- ^ Pairs ^ -----
-
-
-
-) # is_none =
-(/x.x) # TODO
-
-) # is_nil =
-(/x.x) # TODO
-
-) # some =
-(/x.x) # TODO
-
-) # none =
-(/x.x) # TODO
-
-) # nil =
-(/x.x) # TODO
-
-# ----- ^ Optional values ^ -----
-
-
-
-) # T =
-(/x.x) # TODO
-
-) # S =
-(/x.x) # TODO
-
-) # Z =
-(/x.x) # TODO
-
-) # Y =
-(/x.x) # TODO
-
-# ----- ^ Fixed-point combinators ^ -----
-
-
-
-) # cn_fact =
-(/cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n ))
-
-) # cn_is_zero =
-(/n./x./y. n(/z.y)x)
-
-) # cn_sub =
-(/n./m. m cn_pred n)
-
-) # cn_mult =
-(/n./m./f. n (m f))
-
-) # cn_add =
-(/n./m./f./x. n f (m f x))
-
-) # cn_exp =
-(/n./m. m n)
-
-) # cn_7 =
-(cn_succ cn_6)
-
-) # cn_6 =
-(cn_succ cn_5)
-
-) # cn_5 =
-(cn_succ cn_4)
-
-) # cn_4 =
-(cn_succ cn_3)
-
-) # cn_3 =
-(cn_succ cn_2)
-
-) # cn_2 =
-(cn_succ cn_1)
-
-) # cn_pred =
-(/n./f./x. n (/g./h. h (g f)) (/u.x) (/z.z)) # pred de Kleene
-
-) # cn_succ =
-(/n./f./x. f(n f x))
-
-) # cn_1 =
-(/f./x. f x)
-
-) # cn_0 =
-(/f./x. x)
-
-# ----- ^ Church numerals ^ -----
-
-
-
-) # or =
-(/x.x) # TODO
-
-) # and =
-(/x.x) # TODO
-
-) # if_then_else =
-(/x.x)
-
-) # not =
-(/b.b false true)
-
-) # false =
-(/_false_x./y.y)
-
-) # true =
-(/_true_x./y._true_x)
-
-# ----- ^ Booleans ^ -----
-
+## TODO: Highest priority
+    ## Fixed-point combinators
+        ## Y
+        ## Z
+        ## S
+        ## T
+    ## Optional values
+        ## nil
+        ## none
+        ## some
+        ## is_nil
+        ## is_none
+    ## Pairs
+        ## pair
+        ## first
+        ## second
+    ## Lists
+        ## cons
+        ## head
+        ## tail
+    ## Binary natural numbers
+        ## bn_0
+        ## incr
+        ## decr
+        ## cn_to_bn
+
+let {
+
+    # Booleans:
+    # --------------------------------------
+    true = /_true_x./y._true_x;
+    false = /_false_x./y.y;
+    not = /b.b false true;
+    and = /x.x; # TODO
+    or = /x.x; # TODO
+    if_then_else = /x.x;
+
+
+    # Fixed-point combinators:
+    # --------------------------------------
+    # Use it like: my_recursive_function = Y   /recurse./x. some expression that calls recurse(x2)
+    # Use it like: my_recursive_function = S S /recurse./x. some expression that calls recurse(x2)
+    Y = /f. (/x.f(x x)) (/x.f(x x));
+    Z = /f. (/x.f(/v.x x v)) (/x.f(/v.x x v)); # Safe with eager evaluation
+    S = /S./f. f (S S f); # Might memoize better than Y
+    T = /T./f. f (/v.T T f v);
+
+
+    # Church numerals:
+    # --------------------------------------
+    cn_0 = /f./x. x;
+    cn_1 = /f./x. f x;
+    cn_succ = /n./f./x. f(n f x);
+    cn_pred = /n./f./x. n (/g./h. h (g f)) (/u.x) (/z.z); # pred de Kleene
+    cn_2 = cn_succ cn_1;
+    cn_3 = cn_succ cn_2;
+    cn_4 = cn_succ cn_3;
+    cn_5 = cn_succ cn_4;
+    cn_6 = cn_succ cn_5;
+    cn_7 = cn_succ cn_6;
+    cn_add = /n./m./f./x. n f (m f x);
+    cn_sub = /n./m. m cn_pred n;
+    cn_mult = /n./m./f. n (m f);
+    cn_exp = /n./m. m n;
+    cn_is_zero = /n./x./y. n(/z.y)x;
+    cn_fact = /cn_fact./n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n );
+
+
+    # Optional values:
+    # --------------------------------------
+    nil = /x.x; # TODO
+    none = /x.x; # TODO
+    some = /x.x; # TODO
+    is_nil = /x.x; # TODO
+    is_none = /x.x; # TODO
+
+
+    # Pairs:
+    # --------------------------------------
+    pair = /x.x; # TODO
+    first = /x.x; # TODO
+    second = /x.x; # TODO
+
+
+    # Lists:  (A list is an optional pair)
+    # --------------------------------------
+    cons = /x.x; # TODO
+    head = /x.x; # TODO
+    tail = /x.x; # TODO
+    len = /x.x; # TODO
+    reverse = /x.x; # TODO
+    fold_from_left = /x.x; # TODO
+    fold_from_right = /x.x; # TODO
+    concat = /x.x; # TODO
+    map = /x.x; # TODO
+    flatten = /x.x; # TODO
+    flat_map = /x.x; # TODO
+
+
+    # Binary natural numbers:
+    # (A BNN is a list of booleans, where the head is the least significant bit)
+    # --------------------------------------
+    bn_0 = /x.x; # TODO
+    incr = /x.x; # TODO
+    decr = /x.x; # TODO
+    cn_to_bn = /x.x; # TODO
+    is_zero = /x.x; # TODO
+    add = /x.x; # TODO
+    sub = /x.x; # TODO
+    mult = /x.x; # TODO
+    for_range = /x.x; # TODO
+    are_equal = /x.x; # TODO
+    less_than = /x.x; # TODO
+    less_or_equal = /x.x; # TODO
+    greater_than = /x.x; # TODO
+    greater_or_equal = /x.x; # TODO
+
+}
+( {INSERT_WRAPPED_CODE} )
