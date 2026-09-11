@@ -85,14 +85,39 @@ let {
     cons = /x.x; # TODO
     head = /x.x; # TODO
     tail = /x.x; # TODO
-    len = /x.x; # TODO
-    reverse = /x.x; # TODO
     fold_from_left = /x.x; # TODO
     fold_from_right = /x.x; # TODO
+    reverse = /x.x; # TODO
     concat = /x.x; # TODO
     map = /x.x; # TODO
     flatten = /x.x; # TODO
     flat_map = /x.x; # TODO
+
+
+    # Enums:
+    # (For enums where more values may be added in the future, use a BNN instead, to avoid pain)
+    # --------------------------------------
+    e3a = /a./b./c.a;
+    e3b = /a./b./c.b;
+    e3c = /a./b./c.c;
+
+    e4a = /a./b./c./d.a;
+    e4b = /a./b./c./d.b;
+    e4c = /a./b./c./d.c;
+    e4d = /a./b./c./d.d;
+
+    e5a = /a./b./c./d./e.a;
+    e5b = /a./b./c./d./e.b;
+    e5c = /a./b./c./d./e.c;
+    e5d = /a./b./c./d./e.d;
+    e5e = /a./b./c./d./e.e;
+
+
+    # Tuples:  (Like pairs, but longer)
+    # --------------------------------------
+    tuple3 = /a./b./c.       /selector. selector a b c;     # Use e3a-e3c as selector
+    tuple4 = /a./b./c./d.    /selector. selector a b c d;   # Use e4a-e4d as selector
+    tuple5 = /a./b./c./d./e. /selector. selector a b c d e; # Use e5a-e5e as selector
 
 
     # Binary natural numbers:
@@ -103,17 +128,25 @@ let {
     decr = /x.x; # TODO
     cn_to_bn = /x.x; # TODO
     is_zero = /x.x; # TODO
+    bn_cons = /x.x; # TODO # Normalizes the result to nil if the remainder is nil and head is 0
+    bn_normalize = /x.x; # TODO # A "normalized" BNN is where the most significant bit is 1
     add = /x.x; # TODO
     sub = /x.x; # TODO
     mult = /x.x; # TODO
+    divide = /x.x; # TODO
     apply_n_times = /x.x; # TODO
     bn_to_cn = /x.x; # TODO
-    compare = /x.x; # TODO
+    compare = /x.x; # TODO # Returns e3a if x < y, e3b if x == y, or e3c if x > y
     are_equal = /x.x; # TODO
     less_than = /x.x; # TODO
     less_or_equal = /x.x; # TODO
     greater_than = /x.x; # TODO
     greater_or_equal = /x.x; # TODO
+
+
+    # Lists, continued:
+    # --------------------------------------
+    len = /x.x; # TODO
 
 }
 ( {INSERT_WRAPPED_CODE} )

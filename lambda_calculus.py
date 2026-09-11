@@ -31,6 +31,14 @@ from types import NoneType
 # TODO: Test eval on factorial of 5. It's fast! But is it correct?
 # TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
 # TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
+#   I think the types we'd want to support rendering are:
+#   - Boolean
+#   - Binary natural number
+#   - List (where each item has its own type tag)
+#   - String (possibly in the future)
+#   - IO (possibly in the future; unlikely to do all that though!)
+#   (Church numerals can be converted to binary numbers, which are easier to render anyway.)
+# TODO: Add syntax sugar for binary number literals like ^42
 # TODO: Add some more test cases
 
 # TODO: Consider passing debug info about code location into parse() and Ast()
