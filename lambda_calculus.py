@@ -4,6 +4,7 @@
 An interpreter (parser and evaluator) of lambda calculus code.
 '''
 
+import re
 import sys
 from frozendict import frozendict # Third-party library [https://pypi.org/project/frozendict/]
 from functools import cached_property, lru_cache, wraps
@@ -158,21 +159,70 @@ class Ast:
 def is_valid_identifier(variable_name):
     return variable_name.replace('_', 'X').isalnum() and LAMBDA not in variable_name
 
-def match_paren(lc_code: str, start_index: int) -> int:
+def is_space_or_empty(s: str):
+    return s.isspace() or len(s) == 0
+
+def match_paren(lc_code: str, start_index: int, open_paren = '(', close_paren = ')') -> int:
     '''
     Returns the index of the matching closing paren.
     '''
-    assert lc_code[start_index] == '('
+    assert len(open_paren) == 1
+    assert len(close_paren) == 1
+    assert lc_code[start_index] == open_paren
     count = 0
     for i in range(start_index, len(lc_code)):
         c = lc_code[i]
-        if c == '(':
+        if c == open_paren:
             count += 1
-        if c == ')':
+        if c == close_paren:
             count -= 1
         if count == 0:
             return i
-    assert False, 'Could not find matching close paren'
+    assert False, 'Could not find matching close paren {!r}'.format(close_paren)
+
+def parse_let_syntax_sugar(code_between_braces: str, main_code_between_parens: str) -> Ast:
+    '''
+    Support some syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
+    Note that the final var=expr must end in a ';'.
+    Note that the main expr (after the '}') must be wrapped in '()'.
+    '''
+
+    # Split the variable assignments by ';'. Ignore semicolons that occur inside a nested let{}.
+    i = 0
+    assignments_list = []
+    current_assignment_start_index = 0
+    while i < len(code_between_braces):
+        c = code_between_braces[i]
+        if c == ';':
+            assignments_list.append(code_between_braces[current_assignment_start_index:i])
+            current_assignment_start_index = i + 1
+            i += 1
+        elif c == '{':
+            # Skip to the closing brace. We need to skip semicolons that occur inside a nested let{}.
+            close_brace_index = match_paren(code_between_braces, i, '{', '}')
+            i = close_brace_index + 1
+        else:
+            i += 1
+
+    code_after_final_semicolon = code_between_braces[current_assignment_start_index:]
+    assert is_space_or_empty(code_after_final_semicolon), "Inside a let{...} block, the final 'var=expr' assignment must end in a ';'"
+
+    # Parse each assignment. (`var = expr`)
+    assignment_pairs = []
+    for code_str in assignments_list:
+        assert '=' in code_str, "Assignment in let{{...}} does not contain an '=' sign: {!r}".format(code_str)
+        var_name, expr_code = code_str.split('=', 1)
+        var_name = var_name.strip()
+        assert is_valid_identifier(var_name), "Text to the left of '=' sign in let{{...}} is not a valid variable name: {!r}".format(var_name)
+        expr_ast = parse(expr_code)
+        assignment_pairs.append((var_name, expr_ast))
+
+    # Start with the main expression, and wrap with var bindings (by defining
+    # and applying functions) starting with the last `var=expr` assignment.
+    result_ast = parse(main_code_between_parens)
+    for (var_name, var_expr_ast) in reversed(assignment_pairs):
+        result_ast = Ast(CALL, Ast(FUNCTION, var_name, result_ast), var_expr_ast)
+    return result_ast
 
 def remove_comments(lc_code: str) -> str:
     return '\n'.join(
@@ -204,6 +254,22 @@ def parse(lc_code: str) -> Ast:
             index_of_close_paren = match_paren(lc_code, i)
             ast_list.append(parse(lc_code[i+1:index_of_close_paren]))
             i = index_of_close_paren + 1
+        elif lc_code[i:i+3] == 'let' and (match_obj := re.match(r'let\s*{', lc_code[i:])):
+            # Support some syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
+            # Note that the final var=expr must end in a ';'.
+            # Note that the main expr (after the '}') must be wrapped in '()'.
+            assert match_obj.span()[0] == 0
+            open_brace_index = i + match_obj.span()[1] - 1
+            assert lc_code[open_brace_index] == '{'
+            close_brace_index = match_paren(lc_code, open_brace_index, '{', '}')
+            open_paren_index = lc_code.index('(', close_brace_index + 1)
+            assert is_space_or_empty(lc_code[close_brace_index+1:open_paren_index]), 'let{...} must be followed by parentheses (...)'
+            close_paren_index = match_paren(lc_code, open_paren_index)
+            ast_list.append(parse_let_syntax_sugar(
+                lc_code[open_brace_index+1:close_brace_index],
+                lc_code[open_paren_index+1:close_paren_index],
+            ))
+            i = close_paren_index + 1
         else:
             # Variable name or other identifier
             assert is_valid_identifier(lc_code[i]), 'Unexpected character {!r} in code {!r}'.format(lc_code[i], lc_code[max(i-20, 0) : i+21])
