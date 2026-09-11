@@ -1,19 +1,5 @@
 
 ## TODO: Highest priority
-    ## Optional values
-        ## nil
-        ## none
-        ## some
-        ## is_nil
-        ## is_none
-    ## Pairs
-        ## pair
-        ## first
-        ## second
-    ## Lists
-        ## cons
-        ## head
-        ## tail
     ## Binary natural numbers
         ## bn_0
         ## incr
@@ -27,8 +13,10 @@ let {
     true = /_true_x./y. _true_x;
     false = /_false_x./y. y;
     not = /b. b false true;
-    and = /x.x; # TODO
-    or = /x.x; # TODO
+    and = /a./b. a b false;
+    or  = /a./b. a true b;
+    xor = /a./b. a (not b) b;
+    bools_are_equal = /a./b. not (xor a b);
     if_then_else = /x.x;
 
 
@@ -41,6 +29,7 @@ let {
     Z = /f. (/x.f(/v.x x v)) (/x.f(/v.x x v)); # Safe with eager evaluation
     S = /S./f. f (S S f); # Might memoize better than Y
     T = /T./f. f (/v.T T f v); # Safe with eager evaluation
+    recursive = S S; # Our chosen default fixed-point combinator
 
 
     # Church numerals:
@@ -48,7 +37,7 @@ let {
     cn_0 = /f./x. x;
     cn_1 = /f./x. f x;
     cn_succ = /n. /f./x. f(n f x);
-    cn_pred = /n. /f./x. n (/g./h. h (g f)) (/u.x) (/z.z); # pred de Kleene
+    cn_pred = /n. /f./x. n (/g./h. h (g f)) (/u.x) (/z.z);
     cn_2 = cn_succ cn_1;
     cn_3 = cn_succ cn_2;
     cn_4 = cn_succ cn_3;
@@ -61,7 +50,7 @@ let {
     cn_exp  = /n./m. m n;
     cn_is_zero = /n. /x./y. n (/z.y) x;
     cn_fact_old = /cn_fact. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact cn_fact (cn_pred n)) n );
-    cn_fact = Y /cn_fact. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact (cn_pred n)) n );
+    cn_fact = recursive /cn_fact. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact (cn_pred n)) n );
 
 
     # Optional values:
@@ -75,16 +64,16 @@ let {
 
     # Pairs:
     # --------------------------------------
-    pair = /x.x; # TODO
-    first = /x.x; # TODO
-    second = /x.x; # TODO
+    pair = /x./y. /selector. selector x y;
+    first = /p. p true;
+    second = /p. p false;
 
 
     # Lists:  (A list is an optional pair)
     # --------------------------------------
-    cons = /x.x; # TODO
-    head = /x.x; # TODO
-    tail = /x.x; # TODO
+    cons = /head./tail. some (pair head tail);
+    head = /list./if_nil. list if_nil /p.first p;
+    tail = /list. list nil /p.second p; # Returns the remainder of the list, i.e. everything except the head
     fold_from_left = /x.x; # TODO
     fold_from_right = /x.x; # TODO
     reverse = /x.x; # TODO
