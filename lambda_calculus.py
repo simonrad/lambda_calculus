@@ -38,7 +38,7 @@ from types import NoneType
 #   - String (possibly in the future)
 #   - IO (possibly in the future; unlikely to do all that though!)
 #   (Church numerals can be converted to binary numbers, which are easier to render anyway.)
-# TODO: Add syntax sugar for binary number literals like ^42
+# TODO: Add syntax sugar for binary number literals like 42
 # TODO: Add some more test cases
 
 # TODO: Consider passing debug info about code location into parse() and Ast()
@@ -82,14 +82,14 @@ class Ast:
             assert len(args) == 1 # variable_name
             self.variable_name = args[0]
             assert type(self.variable_name) is str
-            assert is_valid_identifier(self.variable_name)
+            assert is_valid_identifier(self.variable_name), 'Not a valid variable name: {!r}'.format(self.variable_name)
         elif kind == FUNCTION:
             assert len(args) == 2 # variable_name, ast
             self.variable_name = args[0]
             self.function_body = args[1]
             assert type(self.variable_name) is str
             assert type(self.function_body) is Ast
-            assert is_valid_identifier(self.variable_name)
+            assert is_valid_identifier(self.variable_name), 'Not a valid variable name: {!r}'.format(self.variable_name)
         elif kind == CALL:
             assert len(args) == 2 # ast, ast
             self.function = args[0]
@@ -161,8 +161,12 @@ class Ast:
         else:
             assert False
 
-def is_valid_identifier(variable_name):
-    return variable_name.replace('_', 'X').isalnum() and LAMBDA not in variable_name
+def is_identifier_char(s: str):
+    # Note that s can be more than one character.
+    return s.replace('_', 'X').isalnum() and (LAMBDA not in s) and len(s) > 0
+
+def is_valid_identifier(variable_name: str):
+    return is_identifier_char(variable_name) and not variable_name[0].isdigit()
 
 def is_space_or_empty(s: str):
     return s.isspace() or len(s) == 0
@@ -277,9 +281,9 @@ def parse(lc_code: str) -> Ast:
             i = close_paren_index + 1
         else:
             # Variable name or other identifier
-            assert is_valid_identifier(lc_code[i]), 'Unexpected character {!r} in code {!r}'.format(lc_code[i], lc_code[max(i-20, 0) : i+21])
+            assert is_identifier_char(lc_code[i]), 'Unexpected character {!r} in code {!r}'.format(lc_code[i], lc_code[max(i-20, 0) : i+21])
             variable_name = ''
-            while i < len(lc_code) and is_valid_identifier(lc_code[i]):
+            while i < len(lc_code) and is_identifier_char(lc_code[i]):
                 variable_name += lc_code[i]
                 i += 1
             ast_list.append(Ast(VARIABLE, variable_name))
