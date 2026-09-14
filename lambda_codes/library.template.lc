@@ -1,11 +1,4 @@
 
-## TODO: Highest priority
-    ## Binary natural numbers
-        ## bn_0
-        ## incr
-        ## decr
-        ## cn_to_bn
-
 let {
 
     # Booleans:
@@ -113,11 +106,11 @@ let {
     # (A BNN is a list of booleans, where the head is the least significant bit)
     # --------------------------------------
     bn_0 = nil;
-    incr = /x.x; # TODO
+    bn_cons = /head./tail. if_then_else (and (not head) (is_nil tail)) nil (some (pair head tail)); # Normalizes the result to nil if the remainder is nil and head is 0
+    incr = recursive /incr. /n. if_then_else (head n false) (bn_cons false (incr (tail n))) (bn_cons true (tail n));
     decr = /x.x; # TODO
-    cn_to_bn = /x.x; # TODO
+    cn_to_bn = /n. incr bn_0;
     is_zero = /x.x; # TODO
-    bn_cons = /x.x; # TODO # Normalizes the result to nil if the remainder is nil and head is 0
     bn_normalize = /x.x; # TODO # A "normalized" BNN is where the most significant bit is 1
     add = /x.x; # TODO
     sub = /x.x; # TODO
