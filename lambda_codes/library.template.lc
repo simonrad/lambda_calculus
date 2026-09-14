@@ -105,7 +105,7 @@ let {
     # (A BNN is a list of booleans, where the head is the least significant bit)
     # --------------------------------------
     bn_0 = nil;
-    bn_cons = /head./tail. if_then_else (and (not head) (is_nil tail)) nil (some (pair head tail)); # Normalizes the result to nil if the remainder is nil and head is 0
+    bn_cons = /head./tail. if_then_else (and (not head) (is_nil tail)) nil (cons head tail); # Normalizes the result to nil if the remainder is nil and head is 0
     incr = recursive /incr. /n. if_then_else (head n false) (bn_cons false (incr (tail n))) (bn_cons true (tail n));
     decr = /x.x; # TODO
     cn_to_bn = /n. n incr bn_0;

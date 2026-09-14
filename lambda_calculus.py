@@ -24,17 +24,6 @@ from types import NoneType
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 
-# TODO: Write tests of all the LC library functions
-#   - not
-#   - and
-#   - or
-#   - xor
-#   - bools_are_equal
-#   - cn_add
-#   - cn_sub
-#   - cn_exp
-#   - tail
-#   - bn_cons
 # TODO: Test factorial of 6 with binary numbers natively. Is it fast? Does it require a high recursion depth?
 # TODO: Write some LC functions
 #   - booleans
@@ -42,6 +31,7 @@ from types import NoneType
 #   - pairs
 #   - lists
 #   - binary numbers
+# TODO: Write tests of all the LC library functions
 # TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
 # TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
 #   I think the types we'd want to support rendering are:
@@ -604,21 +594,63 @@ def run_tests():
     eval_test_cases = (
         # (input_lc_code, transform_func, expected_output)
         ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', expr_to_code, '/x.x'),
+        (wrap_prefix_lc + 'not false', expr_to_bool, True),
+        (wrap_prefix_lc + 'not true', expr_to_bool, False),
+        (wrap_prefix_lc + 'and false false', expr_to_bool, False),
+        (wrap_prefix_lc + 'and true false', expr_to_bool, False),
+        (wrap_prefix_lc + 'and false true', expr_to_bool, False),
+        (wrap_prefix_lc + 'and true true', expr_to_bool, True),
+        (wrap_prefix_lc + 'or false false', expr_to_bool, False),
+        (wrap_prefix_lc + 'or true false', expr_to_bool, True),
+        (wrap_prefix_lc + 'or false true', expr_to_bool, True),
+        (wrap_prefix_lc + 'or true true', expr_to_bool, True),
+        (wrap_prefix_lc + 'xor false false', expr_to_bool, False),
+        (wrap_prefix_lc + 'xor true false', expr_to_bool, True),
+        (wrap_prefix_lc + 'xor false true', expr_to_bool, True),
+        (wrap_prefix_lc + 'xor true true', expr_to_bool, False),
+        (wrap_prefix_lc + 'bools_are_equal false false', expr_to_bool, True),
+        (wrap_prefix_lc + 'bools_are_equal true false', expr_to_bool, False),
+        (wrap_prefix_lc + 'bools_are_equal false true', expr_to_bool, False),
+        (wrap_prefix_lc + 'bools_are_equal true true', expr_to_bool, True),
+        (wrap_prefix_lc + 'cn_to_bn (cn_pred cn_2)', expr_to_int, 1),
+        (wrap_prefix_lc + 'cn_to_bn (cn_pred cn_1)', expr_to_int, 0),
+        (wrap_prefix_lc + 'cn_to_bn (cn_pred cn_0)', expr_to_int, 0),
+        (wrap_prefix_lc + 'cn_to_bn (cn_add cn_3 cn_7)', expr_to_int, 10),
+        (wrap_prefix_lc + 'cn_to_bn (cn_add cn_7 cn_3)', expr_to_int, 10),
+        (wrap_prefix_lc + 'cn_to_bn (cn_sub cn_3 cn_7)', expr_to_int, 0),
+        (wrap_prefix_lc + 'cn_to_bn (cn_sub cn_7 cn_3)', expr_to_int, 4),
+        (wrap_prefix_lc + 'cn_to_bn (cn_mult cn_3 cn_7)', expr_to_int, 21),
+        (wrap_prefix_lc + 'cn_to_bn (cn_mult cn_7 cn_3)', expr_to_int, 21),
+        (wrap_prefix_lc + 'cn_to_bn (cn_exp cn_3 cn_2)', expr_to_int, 9),
+        (wrap_prefix_lc + 'cn_to_bn (cn_exp cn_2 cn_3)', expr_to_int, 8),
+        (wrap_prefix_lc + 'cn_to_bn (cn_exp cn_1 cn_3)', expr_to_int, 1),
+        (wrap_prefix_lc + 'cn_to_bn (cn_exp cn_3 cn_1)', expr_to_int, 3),
+        (wrap_prefix_lc + 'cn_to_bn (cn_exp cn_3 cn_0)', expr_to_int, 1),
         (wrap_prefix_lc + 'cn_5 not false # Return true if odd', expr_to_bool, True),
         (wrap_prefix_lc + '(cn_fact cn_5) not false # Return false if even', expr_to_bool, False),
-        (wrap_prefix_lc + 'incr (incr (incr (incr bn_0)))', expr_to_int, 4),
         (wrap_prefix_lc + 'cn_to_bn (cn_fact cn_5)', expr_to_int, 120),
         (wrap_prefix_lc + '0', expr_to_int, 0),
         (wrap_prefix_lc + '(27)', expr_to_int, 27),
         (wrap_prefix_lc + 'incr (incr 168)', expr_to_int, 170),
+        (wrap_prefix_lc + 'incr (incr (incr (incr bn_0)))', expr_to_int, 4),
         (wrap_prefix_lc + 'head 0 true', expr_to_bool, True),
         (wrap_prefix_lc + 'head 0 false', expr_to_bool, False),
         (wrap_prefix_lc + 'head 4 true', expr_to_bool, False),
         (wrap_prefix_lc + 'head 4 false', expr_to_bool, False),
         (wrap_prefix_lc + 'head 3 true', expr_to_bool, True),
         (wrap_prefix_lc + 'head 3 false', expr_to_bool, True),
+        (wrap_prefix_lc + 'tail 8', expr_to_int, 4),
+        (wrap_prefix_lc + 'tail (tail 8)', expr_to_int, 2),
+        (wrap_prefix_lc + 'tail (tail (tail 8))', expr_to_int, 1),
+        (wrap_prefix_lc + 'tail (tail (tail (tail 8)))', expr_to_int, 0),
+        (wrap_prefix_lc + 'tail (tail (tail (tail (tail 8))))', expr_to_int, 0),
         (wrap_prefix_lc + 'is_nil 0', expr_to_bool, True),
         (wrap_prefix_lc + 'is_nil 8', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_nil (bn_cons false nil)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_cons false nil', expr_to_int, 0),
+        (wrap_prefix_lc + 'bn_cons true nil', expr_to_int, 1),
+        (wrap_prefix_lc + 'bn_cons false 8', expr_to_int, 16),
+        (wrap_prefix_lc + 'bn_cons true 8', expr_to_int, 17),
     )
 
     print('Eval test cases:')
