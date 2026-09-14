@@ -109,7 +109,7 @@ let {
     bn_cons = /head./tail. if_then_else (and (not head) (is_nil tail)) nil (some (pair head tail)); # Normalizes the result to nil if the remainder is nil and head is 0
     incr = recursive /incr. /n. if_then_else (head n false) (bn_cons false (incr (tail n))) (bn_cons true (tail n));
     decr = /x.x; # TODO
-    cn_to_bn = /n. incr bn_0;
+    cn_to_bn = /n. n incr bn_0;
     is_zero = /x.x; # TODO
     bn_normalize = /x.x; # TODO # A "normalized" BNN is where the most significant bit is 1
     add = /x.x; # TODO

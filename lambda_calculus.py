@@ -18,17 +18,19 @@ from types import NoneType
 # Done: Enforce that CALLs are only 1 argument
 # Done: Replace MappingProxyType with frozendict [https://pypi.org/project/frozendict/]
 # Done: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
+# Done: Test eval on factorial of 5. It's fast, and correct!
 
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 
+# TODO: Write tests of all the LC library functions
+# TODO: Test factorial of 6 with binary numbers natively. Is it fast? Does it require a high recursion depth?
 # TODO: Write some LC functions
 #   - booleans
 #   - optional values
 #   - pairs
 #   - lists
 #   - binary numbers
-# TODO: Test eval on factorial of 5. It's fast! But is it correct?
 # TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
 # TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
 #   I think the types we'd want to support rendering are:
@@ -440,10 +442,10 @@ def as_optional(lc_value: Ast | Expr) -> (Ast | Expr | NoneType):
     make_arg = make_ast_or_expr(type(lc_value))
 
     param_name = '__very_special_nil_indicator_value'
-    nil_result_lc = '/{}.{}'.format(param_name)
+    nil_result_lc = '/{}.{}'.format(param_name, param_name)
 
     result = lc_value.apply(make_arg(nil_result_lc)).apply(make_arg('/x.x'))
-    result_ast = result if isinstance(result, Ast) else result.ast
+    result_ast = result if isinstance(result, Ast) else result.eval().ast
 
     if result_ast.kind == FUNCTION and result_ast.variable_name == param_name and result.to_code() == nil_result_lc:
         # The lc_value is nil.
@@ -558,12 +560,15 @@ def run_tests():
     wrap_prefix_lc = '#wrap_with_template ./lambda_codes/library.template.lc\n'
     expr_to_code = lambda expr: expr.to_code()
     expr_to_bool = lambda expr: as_bool(expr)
+    expr_to_int  = lambda expr: as_binary_natural_number(expr)
 
     eval_test_cases = (
         # (input_lc_code, transform_func, expected_output)
         ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', expr_to_code, '/x.x'),
         (wrap_prefix_lc + 'cn_5 not false # Return true if odd', expr_to_bool, True),
         (wrap_prefix_lc + '(cn_fact cn_5) not false # Return false if even', expr_to_bool, False),
+        (wrap_prefix_lc + 'incr (incr (incr (incr bn_0)))', expr_to_int, 4),
+        (wrap_prefix_lc + 'cn_to_bn (cn_fact cn_5)', expr_to_int, 120),
     )
 
     print('Eval test cases:')
