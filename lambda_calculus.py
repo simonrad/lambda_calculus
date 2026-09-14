@@ -19,11 +19,22 @@ from types import NoneType
 # Done: Replace MappingProxyType with frozendict [https://pypi.org/project/frozendict/]
 # Done: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
 # Done: Test eval on factorial of 5. It's fast, and correct!
+# Done: Add syntax sugar for binary number literals like 42
 
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 
 # TODO: Write tests of all the LC library functions
+#   - not
+#   - and
+#   - or
+#   - xor
+#   - bools_are_equal
+#   - cn_add
+#   - cn_sub
+#   - cn_exp
+#   - tail
+#   - bn_cons
 # TODO: Test factorial of 6 with binary numbers natively. Is it fast? Does it require a high recursion depth?
 # TODO: Write some LC functions
 #   - booleans
@@ -40,7 +51,6 @@ from types import NoneType
 #   - String (possibly in the future)
 #   - IO (possibly in the future; unlikely to do all that though!)
 #   (Church numerals can be converted to binary numbers, which are easier to render anyway.)
-# TODO: Add syntax sugar for binary number literals like 42
 # TODO: Add some more test cases
 
 # TODO: Consider passing debug info about code location into parse() and Ast()
@@ -191,6 +201,26 @@ def match_paren(lc_code: str, start_index: int, open_paren = '(', close_paren = 
             return i
     assert False, 'Could not find matching close paren {!r}'.format(close_paren)
 
+def build_binary_natural_number_ast(n: int) -> Ast:
+    assert type(n) is int
+    assert n >= 0
+    bits = [] # Starting with the least significant digit
+    remaining = n
+    while remaining != 0:
+        bits.append(remaining & 1)
+        remaining >>= 1
+    assert len(bits) == 0 or bits[-1] == 1
+
+    # Start with the most significant binary digit, and build a linked list of booleans.
+    lc_code = 'nil'
+    for bit in reversed(bits):
+        assert bit in (0, 1)
+        bit_bool_str = str(bool(bit)).lower()
+        lc_code = '(cons {} {})'.format(bit_bool_str, lc_code)
+
+    lc_code = '#wrap_with_template ./lambda_codes/minimal_library.template.lc\n' + lc_code
+    return parse_fully(lc_code)
+
 def parse_let_syntax_sugar(code_between_braces: str, main_code_between_parens: str) -> Ast:
     '''
     Support some syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
@@ -281,6 +311,15 @@ def parse(lc_code: str) -> Ast:
                 lc_code[open_paren_index+1:close_paren_index],
             ))
             i = close_paren_index + 1
+        elif lc_code[i].isdigit():
+            # Support natural number literals (like 42).
+            # We turn these into a binary natural number.
+            # (A BNN is a list of booleans, where the head is the least significant bit.)
+            number_str = ''
+            while i < len(lc_code) and lc_code[i].isdigit():
+                number_str += lc_code[i]
+                i += 1
+            ast_list.append(build_binary_natural_number_ast(int(number_str)))
         else:
             # Variable name or other identifier
             assert is_identifier_char(lc_code[i]), 'Unexpected character {!r} in code {!r}'.format(lc_code[i], lc_code[max(i-20, 0) : i+21])
@@ -569,6 +608,17 @@ def run_tests():
         (wrap_prefix_lc + '(cn_fact cn_5) not false # Return false if even', expr_to_bool, False),
         (wrap_prefix_lc + 'incr (incr (incr (incr bn_0)))', expr_to_int, 4),
         (wrap_prefix_lc + 'cn_to_bn (cn_fact cn_5)', expr_to_int, 120),
+        (wrap_prefix_lc + '0', expr_to_int, 0),
+        (wrap_prefix_lc + '(27)', expr_to_int, 27),
+        (wrap_prefix_lc + 'incr (incr 168)', expr_to_int, 170),
+        (wrap_prefix_lc + 'head 0 true', expr_to_bool, True),
+        (wrap_prefix_lc + 'head 0 false', expr_to_bool, False),
+        (wrap_prefix_lc + 'head 4 true', expr_to_bool, False),
+        (wrap_prefix_lc + 'head 4 false', expr_to_bool, False),
+        (wrap_prefix_lc + 'head 3 true', expr_to_bool, True),
+        (wrap_prefix_lc + 'head 3 false', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_nil 0', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_nil 8', expr_to_bool, False),
     )
 
     print('Eval test cases:')

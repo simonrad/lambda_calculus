@@ -1,0 +1,14 @@
+
+# This is the minimal set of functions needed to construct a binary natural number.
+# The parse() Python function uses this when it encounters a literal number.
+
+let {
+
+    true = /_true_x./y. _true_x;
+    false = /_false_x./y. y;
+    some = /val. /if_none./if_some. if_some val;
+    pair = /x./y. /selector. selector x y;
+    cons = /head./tail. some (pair head tail);
+
+}
+( {INSERT_WRAPPED_CODE} )
