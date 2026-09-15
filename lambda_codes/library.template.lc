@@ -65,8 +65,8 @@ let {
     # Lists:  (A list is an optional pair)
     # --------------------------------------
     cons = /head./tail. some (pair head tail);
-    head = /list./if_nil. list if_nil /p.first p;
-    tail = /list. list nil /p.second p; # Returns the remainder of the list, i.e. everything except the head
+    head_of = /list./if_nil. list if_nil /p.first p;
+    tail_of = /list. list nil /p.second p; # Returns the remainder of the list, i.e. everything except the head
     fold_from_left = /x.x; # TODO
     fold_from_right = /x.x; # TODO
     reverse = /x.x; # TODO
