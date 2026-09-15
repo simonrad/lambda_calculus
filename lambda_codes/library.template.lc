@@ -56,9 +56,10 @@ let {
 
     # Pairs:
     # --------------------------------------
-    pair = /x./y. /selector. selector x y;
+    pair = /a./b. /f. f a b;
     first = /p. p true;
     second = /p. p false;
+    unpack = /f./p. p f; # Useful if you need a function of a pair: Partially apply unpack like (unpack /a./b. ...). Note that unpacking a pair can be done with just (mypair /a./b. ...).
 
 
     # Lists:  (A list is an optional pair)
@@ -96,9 +97,9 @@ let {
 
     # Tuples:  (Like pairs, but longer)
     # --------------------------------------
-    tuple3 = /a./b./c.       /selector. selector a b c;     # Use e3a-e3c as selector
-    tuple4 = /a./b./c./d.    /selector. selector a b c d;   # Use e4a-e4d as selector
-    tuple5 = /a./b./c./d./e. /selector. selector a b c d e; # Use e5a-e5e as selector
+    tuple3 = /a./b./c.       /f. f a b c;     # Can use e3a-e3c as f if you just want to select one item
+    tuple4 = /a./b./c./d.    /f. f a b c d;   # Can use e4a-e4d as f if you just want to select one item
+    tuple5 = /a./b./c./d./e. /f. f a b c d e; # Can use e5a-e5e as f if you just want to select one item
 
 
     # Binary natural numbers:
