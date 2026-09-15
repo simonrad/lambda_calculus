@@ -651,6 +651,10 @@ def run_tests():
         (wrap_prefix_lc + 'bn_cons true nil', expr_to_int, 1),
         (wrap_prefix_lc + 'bn_cons false 8', expr_to_int, 16),
         (wrap_prefix_lc + 'bn_cons true 8', expr_to_int, 17),
+        # TODO: Add tests of:
+        #   - bn_is_normalized
+        #   - bn_normalize
+        #   - decr
     )
 
     print('Eval test cases:')

@@ -108,11 +108,14 @@ let {
     bn_0 = nil;
     bn_1 = (cons true nil);
     bn_cons = /head./tail. if_then_else (and (not head) (is_nil tail)) nil (cons head tail); # Normalizes the result to nil if the remainder is nil and head is 0
+    bn_is_normalized = /x.x; # TODO # A "normalized" BNN is where the most significant bit is 1
+    bn_normalize_unnormalized = /n. fold_from_right n nil bn_cons;
+    bn_normalize = /n. (bn_is_normalized n) n (bn_normalize_unnormalized n);
     incr = recursive /incr. /n. n bn_1 (unpack /head./tail. if_then_else head (bn_cons false (incr tail)) (bn_cons true tail));
-    decr = /x.x; # TODO
+    decr_normalized = recursive /decr_normalized. /n. n bn_0 (unpack /head./tail. if_then_else head (bn_cons false tail) (bn_cons true (decr_normalized tail)));
+    decr = /n. decr_normalized (bn_normalize n); # Note that (decr 0) is 0
     cn_to_bn = /n. n incr bn_0;
     is_zero = /x.x; # TODO
-    bn_normalize = /x.x; # TODO # A "normalized" BNN is where the most significant bit is 1
     add = /x.x; # TODO
     sub = /x.x; # TODO
     mult = /x.x; # TODO
