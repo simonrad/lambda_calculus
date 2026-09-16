@@ -6,6 +6,7 @@ An interpreter (parser and evaluator) of lambda calculus code.
 
 import re
 import sys
+import time
 from frozendict import frozendict # Third-party library [https://pypi.org/project/frozendict/]
 from functools import cached_property, lru_cache, wraps
 from types import NoneType
@@ -699,12 +700,14 @@ def run_tests():
         (wrap_prefix_lc + 'add 4 0', expr_to_int, 4),
         (wrap_prefix_lc + 'add 8 12', expr_to_int, 20),
         (wrap_prefix_lc + 'add 12 8', expr_to_int, 20),
+        (wrap_prefix_lc + 'add 389480456237 7924028946985', expr_to_int, 8313509403222),
         (wrap_prefix_lc + 'bn_is_normalized (add 3 7)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 7 3)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 0 4)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 4 0)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 8 12)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 12 8)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add 389480456237 7924028946985)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add (cons false (cons false nil)) (cons false (cons false nil)))', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add (cons true (cons false (cons false nil))) (cons false (cons false nil)))', expr_to_bool, False), # Note `add` does not always return a normalized result if the input is not normalized
 
@@ -732,11 +735,13 @@ def run_tests():
 
     print('Eval test cases:')
     for (input_lc_code, transform_func, expected_output) in eval_test_cases:
+        start_time = time.time()
         actual_output = transform_func(eval_lc(input_lc_code))
+        elapsed = time.time() - start_time
         test_does_pass = actual_output == expected_output
         print(' ', 'Pass' if test_does_pass else 'FAIL', ' ',
               input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
-              ' -> ', expected_output)
+              ' -> ', expected_output, ' ({} ms)'.format(int(elapsed * 1000)))
         if not test_does_pass:
             print('    expected:', expected_output)
             print('    actual:  ', actual_output)
