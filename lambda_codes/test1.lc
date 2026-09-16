@@ -10,6 +10,6 @@
 
 # /y. (/x.x x) (/x.if_then_else x x)  # Infinite recursion
 
-# (cn_fact cn_3)
+# (cn_factorial cn_3)
 
-(cn_succ (cn_fact cn_5)) not false
+(cn_succ (cn_factorial cn_5)) not false

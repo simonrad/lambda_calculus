@@ -42,7 +42,7 @@ let {
     cn_mult = /n./m. /f. n (m f);
     cn_exp  = /n./m. m n;
     cn_is_zero = /n. /x./y. n (/z.y) x;
-    cn_fact = recursive /cn_fact. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_fact (cn_pred n)) n );
+    cn_factorial = recursive /cn_factorial. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_factorial (cn_pred n)) n );
 
 
     # Optional values:
@@ -120,6 +120,7 @@ let {
     add = /x.x; # TODO
     sub = /x.x; # TODO
     mult = /x.x; # TODO
+    factorial = /x.x; # TODO
     divide = /x.x; # TODO
     apply_n_times = /x.x; # TODO
     bn_to_cn = /x.x; # TODO
