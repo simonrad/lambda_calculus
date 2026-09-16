@@ -67,8 +67,9 @@ let {
     cons = /head./tail. some (pair head tail);
     head_of = /list./if_nil. list if_nil /p.first p;
     tail_of = /list. list nil /p.second p; # Returns the remainder of the list, i.e. everything except the head
-    fold_from_left = /x.x; # TODO
+    fold_from_left = recursive /fold_from_left. /list./start_val./reduce. list start_val (unpack /head./tail. fold_from_left tail (reduce head start_val) reduce);
     fold_from_right = /x.x; # TODO
+    last_of = /list./if_nil. fold_from_left list if_nil /v./s. v;
     reverse = /x.x; # TODO
     concat = /x.x; # TODO
     map = /x.x; # TODO
@@ -108,7 +109,7 @@ let {
     bn_0 = nil;
     bn_1 = (cons true nil);
     bn_cons = /head./tail. if_then_else (and (not head) (is_nil tail)) nil (cons head tail); # Normalizes the result to nil if the remainder is nil and head is 0
-    bn_is_normalized = /x.x; # TODO # A "normalized" BNN is where the most significant bit is 1
+    bn_is_normalized = /n. last_of n true; # A "normalized" BNN is where the most significant bit is 1
     bn_normalize_unnormalized = /n. fold_from_right n nil bn_cons;
     bn_normalize = /n. (bn_is_normalized n) n (bn_normalize_unnormalized n);
     incr = recursive /incr. /n. n bn_1 (unpack /head./tail. if_then_else head (bn_cons false (incr tail)) (bn_cons true tail));
