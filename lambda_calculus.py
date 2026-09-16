@@ -663,9 +663,25 @@ def run_tests():
         (wrap_prefix_lc + 'bn_is_normalized (cons true  (cons false nil))', expr_to_bool, False),
         (wrap_prefix_lc + 'bn_is_normalized (cons false (cons false nil))', expr_to_bool, False),
         (wrap_prefix_lc + 'bn_is_normalized (bn_cons false nil)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (bn_normalize (cons false nil))', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (bn_normalize (cons true  (cons false nil)))', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (bn_normalize (cons false (cons false nil)))', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_normalize (cons false nil)', expr_to_int, 0),
+        (wrap_prefix_lc + 'bn_normalize (cons true  (cons false nil))', expr_to_int, 1),
+        (wrap_prefix_lc + 'bn_normalize (cons false (cons false nil))', expr_to_int, 0),
+        (wrap_prefix_lc + 'decr 0', expr_to_int, 0),
+        (wrap_prefix_lc + 'decr 1', expr_to_int, 0),
+        (wrap_prefix_lc + 'decr 2', expr_to_int, 1),
+        (wrap_prefix_lc + 'decr 3', expr_to_int, 2),
+        (wrap_prefix_lc + 'decr 4', expr_to_int, 3),
+        (wrap_prefix_lc + 'bn_is_normalized (decr 0)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (decr 1)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (decr 2)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (decr 3)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (decr 4)', expr_to_bool, True),
+
         # TODO: Add tests of:
-        #   - bn_normalize
-        #   - decr
+        #   -
     )
 
     print('Eval test cases:')
