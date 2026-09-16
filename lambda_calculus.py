@@ -631,8 +631,14 @@ def run_tests():
         (wrap_prefix_lc + 'cn_to_bn (cn_factorial cn_5)', expr_to_int, 120),
         (wrap_prefix_lc + '0', expr_to_int, 0),
         (wrap_prefix_lc + '(27)', expr_to_int, 27),
+        (wrap_prefix_lc + 'incr 0', expr_to_int, 1),
+        (wrap_prefix_lc + 'incr 1', expr_to_int, 2),
+        (wrap_prefix_lc + 'incr 2', expr_to_int, 3),
+        (wrap_prefix_lc + 'incr 3', expr_to_int, 4),
+        (wrap_prefix_lc + 'incr (cons false nil)', expr_to_int, 1),
+        (wrap_prefix_lc + 'incr (cons false (cons false nil))', expr_to_int, 1),
         (wrap_prefix_lc + 'incr (incr 168)', expr_to_int, 170),
-        (wrap_prefix_lc + 'incr (incr (incr (incr bn_0)))', expr_to_int, 4),
+        (wrap_prefix_lc + 'incr (incr (incr (incr (incr bn_0))))', expr_to_int, 5),
         (wrap_prefix_lc + 'head_of 0 true', expr_to_bool, True),
         (wrap_prefix_lc + 'head_of 0 false', expr_to_bool, False),
         (wrap_prefix_lc + 'head_of 4 true', expr_to_bool, False),
@@ -687,9 +693,22 @@ def run_tests():
         (wrap_prefix_lc + 'is_zero (cons false (cons true  nil))', expr_to_bool, False),
         (wrap_prefix_lc + 'is_zero (cons true  (cons false nil))', expr_to_bool, False),
         (wrap_prefix_lc + 'is_zero (cons false (cons false nil))', expr_to_bool, True),
+        (wrap_prefix_lc + 'add 3 7', expr_to_int, 10),
+        (wrap_prefix_lc + 'add 7 3', expr_to_int, 10),
+        (wrap_prefix_lc + 'add 0 4', expr_to_int, 4),
+        (wrap_prefix_lc + 'add 4 0', expr_to_int, 4),
+        (wrap_prefix_lc + 'add 8 12', expr_to_int, 20),
+        (wrap_prefix_lc + 'add 12 8', expr_to_int, 20),
+        (wrap_prefix_lc + 'bn_is_normalized (add 3 7)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add 7 3)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add 0 4)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add 4 0)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add 8 12)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add 12 8)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add (cons false (cons false nil)) (cons false (cons false nil)))', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (add (cons true (cons false (cons false nil))) (cons false (cons false nil)))', expr_to_bool, False), # Note `add` does not always return a normalized result if the input is not normalized
 
         # TODO: Add tests of:
-        #   - add
         #   - sub
         #   - mult
         #   - factorial
