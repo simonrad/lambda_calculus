@@ -679,9 +679,36 @@ def run_tests():
         (wrap_prefix_lc + 'bn_is_normalized (decr 2)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (decr 3)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (decr 4)', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_zero nil', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_zero 0', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_zero 1', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_zero 2', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_zero 3', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_zero (cons false (cons true  nil))', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_zero (cons true  (cons false nil))', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_zero (cons false (cons false nil))', expr_to_bool, True),
 
         # TODO: Add tests of:
-        #   -
+        #   - add
+        #   - sub
+        #   - mult
+        #   - factorial
+        #   - divide
+        #   - apply_n_times
+        #   - bn_to_cn
+        #   - compare
+        #   - are_equal
+        #   - less_than
+        #   - less_or_equal
+        #   - greater_than
+        #   - greater_or_equal
+        #
+        #   - reverse
+        #   - concat
+        #   - map
+        #   - flatten
+        #   - flat_map
+        #   - len
     )
 
     print('Eval test cases:')

@@ -116,7 +116,7 @@ let {
     decr_normalized = recursive /decr_normalized. /n. n bn_0 (unpack /head./tail. if_then_else head (bn_cons false tail) (bn_cons true (decr_normalized tail)));
     decr = /n. decr_normalized (bn_normalize n); # Note that (decr 0) is 0
     cn_to_bn = /n. n incr bn_0;
-    is_zero = /x.x; # TODO
+    is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
     add = /x.x; # TODO
     sub = /x.x; # TODO
     mult = /x.x; # TODO
