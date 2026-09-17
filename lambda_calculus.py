@@ -701,6 +701,7 @@ def run_tests():
         (wrap_prefix_lc + 'add 8 12', expr_to_int, 20),
         (wrap_prefix_lc + 'add 12 8', expr_to_int, 20),
         (wrap_prefix_lc + 'add 389480456237 7924028946985', expr_to_int, 8313509403222),
+        (wrap_prefix_lc + 'add 389480956261846756091384378324562937 79240248576384173532487308489469085', expr_to_int, 468721204838230929623871686814032022),
         (wrap_prefix_lc + 'bn_is_normalized (add 3 7)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 7 3)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add 0 4)', expr_to_bool, True),

@@ -117,20 +117,16 @@ let {
     decr = /n. decr_normalized (bn_normalize n); # Note that (decr 0) is 0
     cn_to_bn = /n. n incr bn_0;
     is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
-    add_with_carry = recursive /add_with_carry. /n./m./carry_bit.
-        if_then_else (is_nil n) (carry_bit (incr m) m) (
-            if_then_else (is_nil m) (carry_bit (incr n) n) (
+    add = recursive /add. /n./m.
+        n m (unpack /n_bit./n_tail.
+            m n (unpack /m_bit./m_tail.
                 let {
-                    bit_sum = cons carry_bit nil;
-                    bit_sum = if_then_else (head_of n false) (incr bit_sum) bit_sum;
-                    bit_sum = if_then_else (head_of m false) (incr bit_sum) bit_sum;
-                    result_bit = head_of bit_sum false;
-                    new_carry = head_of (tail_of bit_sum) false;
-                    result_tail = add_with_carry (tail_of n) (tail_of m) new_carry;
+                    result_bit = xor n_bit m_bit;
+                    result_tail = add n_tail m_tail;
+                    result_tail = if_then_else (and n_bit m_bit) (incr result_tail) result_tail;
                 }(bn_cons result_bit result_tail)
             )
         );
-    add = /n./m. add_with_carry n m false;
     sub = /x.x; # TODO
     mult = /x.x; # TODO
     factorial = /x.x; # TODO
