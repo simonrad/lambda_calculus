@@ -117,6 +117,12 @@ let {
     decr = /n. decr_normalized (bn_normalize n); # Note that (decr 0) is 0
     cn_to_bn = /n. n incr bn_0;
     is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
+    compare = /x.x; # TODO # Returns e3a if x < y, e3b if x == y, or e3c if x > y
+    are_equal = /x.x; # TODO
+    less_than = /x.x; # TODO
+    less_or_equal = /x.x; # TODO
+    greater_than = /x.x; # TODO
+    greater_or_equal = /x.x; # TODO
     add = recursive /add. /n./m.
         n m (unpack /n_bit./n_tail.
             m n (unpack /m_bit./m_tail.
@@ -127,18 +133,23 @@ let {
                 }(bn_cons result_bit result_tail)
             )
         );
-    sub = /x.x; # TODO
+    sub_unsafe = recursive /sub_unsafe. /n./m. # Requires n >= m, and n and m are both normalized
+        n bn_0 (unpack /n_bit./n_tail.
+            m n (unpack /m_bit./m_tail.
+                let {
+                    result_bit = xor n_bit m_bit;
+                    result_tail = sub_unsafe n_tail m_tail;
+                    result_tail = if_then_else (and (not n_bit) m_bit) (decr_normalized result_tail) result_tail;
+                }(bn_cons result_bit result_tail)
+            )
+        );
+    sub_normalized = /n./m. if_then_else (greater_than n m) (sub_unsafe n m) bn_0; # Requires n and m are both normalized
+    sub = /n./m. sub_normalized (bn_normalize n) (bn_normalize m); # Returns 0 if n <= m
     mult = /x.x; # TODO
     factorial = /x.x; # TODO
     divide = /x.x; # TODO
     apply_n_times = /x.x; # TODO
     bn_to_cn = /x.x; # TODO
-    compare = /x.x; # TODO # Returns e3a if x < y, e3b if x == y, or e3c if x > y
-    are_equal = /x.x; # TODO
-    less_than = /x.x; # TODO
-    less_or_equal = /x.x; # TODO
-    greater_than = /x.x; # TODO
-    greater_or_equal = /x.x; # TODO
 
 
     # Lists, continued:
