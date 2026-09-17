@@ -786,6 +786,26 @@ def run_tests():
         (wrap_prefix_lc + 'bn_is_normalized (mult  12   8)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (mult  75  45)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (mult 977 766)', expr_to_bool, True),
+        (wrap_prefix_lc + 'divide 0 3 true', expr_to_int, 0),
+        (wrap_prefix_lc + 'divide 0 3 false', expr_to_int, 0),
+        (wrap_prefix_lc + 'divide 7 3 true', expr_to_int, 2),
+        (wrap_prefix_lc + 'divide 7 3 false', expr_to_int, 1),
+        (wrap_prefix_lc + 'divide 8 3 true', expr_to_int, 2),
+        (wrap_prefix_lc + 'divide 8 3 false', expr_to_int, 2),
+        (wrap_prefix_lc + 'divide 9 3 true', expr_to_int, 3),
+        (wrap_prefix_lc + 'divide 9 3 false', expr_to_int, 0),
+        (wrap_prefix_lc + 'divide 123 1 true', expr_to_int, 123),
+        (wrap_prefix_lc + 'divide 123 1 false', expr_to_int, 0),
+        (wrap_prefix_lc + 'divide 123 4 true', expr_to_int, 30),
+        (wrap_prefix_lc + 'divide 123 4 false', expr_to_int, 3),
+        (wrap_prefix_lc + 'divide 123 5 true', expr_to_int, 24),
+        (wrap_prefix_lc + 'divide 123 5 false', expr_to_int, 3),
+        (wrap_prefix_lc + 'divide 1 0 true', expr_to_int, 1),
+        (wrap_prefix_lc + 'divide 1 0 false', expr_to_int, 1),
+        (wrap_prefix_lc + 'divide 2 0 true', expr_to_int, 3),
+        (wrap_prefix_lc + 'divide 2 0 false', expr_to_int, 2),
+        (wrap_prefix_lc + 'divide 3 0 true', expr_to_int, 3),
+        (wrap_prefix_lc + 'divide 3 0 false', expr_to_int, 3),
 
         # TODO: Add tests of:
         #   - compare
@@ -797,7 +817,6 @@ def run_tests():
         #   - greater_or_equal
         #
         #   - factorial
-        #   - divide
         #   - apply_n_times
         #   - bn_to_cn
         #

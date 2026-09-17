@@ -164,8 +164,19 @@ let {
                 result = if_then_else n_bit (add m result) result;
             }(result)
         );
+    divide = recursive /divide. /n./d. # Returns (pair quotient remainder)
+        n (pair bn_0 bn_0) (unpack /n_bit./n_tail.
+            (divide n_tail d) /q./r.
+                let {
+                    q = bn_cons false q;
+                    r = bn_cons false r;
+                    r = if_then_else n_bit (incr r) r;
+                    should_subtract_d_from_r = greater_or_equal r d;
+                    r = if_then_else should_subtract_d_from_r (sub_unsafe r d) r;
+                    q = if_then_else should_subtract_d_from_r (incr q) q;
+                }(pair q r)
+        );
     factorial = /x.x; # TODO
-    divide = /x.x; # TODO
     apply_n_times = /x.x; # TODO
     bn_to_cn = /x.x; # TODO
 
