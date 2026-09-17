@@ -574,9 +574,9 @@ def print_code_from_stdin():
 
 
 def run_tests():
-    parse_test_cases = (
+    parse_test_cases = [
         '(/x./y.x y z (y z) x) (/p.p) z',
-    )
+    ]
 
     print('Parse test cases:')
     for lc_code in parse_test_cases:
@@ -592,7 +592,7 @@ def run_tests():
     expr_to_bool = lambda expr: as_bool(expr)
     expr_to_int  = lambda expr: as_binary_natural_number(expr)
 
-    eval_test_cases = (
+    eval_test_cases = [
         # (input_lc_code, transform_func, expected_output)
         ('(/x./y./z.x x) (/x.x) (/zzz.zzz) ((/x.x x) (/x.x x))', expr_to_code, '/x.x'),
         (wrap_prefix_lc + 'not false', expr_to_bool, True),
@@ -785,12 +785,17 @@ def run_tests():
         #   - flatten
         #   - flat_map
         #   - len
-    )
+    ]
 
-    # for i in range(50):
-    #     for j in range(50):
+    # for i in range(20):
+    #     for j in range(i+3):
     #         eval_test_cases.append(
     #             (wrap_prefix_lc + 'sub (bn_unnormalize {}) (bn_unnormalize {})'.format(i, j), expr_to_int, max(i - j, 0))
+    #         )
+    # for i in range(20):
+    #     for j in range(i+3):
+    #         eval_test_cases.append(
+    #             (wrap_prefix_lc + 'bn_is_normalized (sub {} {})'.format(i, j), expr_to_bool, True)
     #         )
 
     print('Eval test cases:')
