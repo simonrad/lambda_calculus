@@ -117,12 +117,22 @@ let {
     decr = /n. decr_normalized (bn_normalize n); # Note that (decr 0) is 0
     cn_to_bn = /n. n incr bn_0;
     is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
-    compare = /x.x; # TODO # Returns e3a if x < y, e3b if x == y, or e3c if x > y
-    are_equal = /x.x; # TODO
-    less_than = /x.x; # TODO
-    less_or_equal = /x.x; # TODO
-    greater_than = /x.x; # TODO
-    greater_or_equal = /x.x; # TODO
+    compare = recursive /compare. /x./y. # Returns e3a if x < y, e3b if x == y, or e3c if x > y
+        x (if_then_else (is_zero y) e3b e3a) (unpack /x_bit./x_tail.
+            y (if_then_else (is_zero x) e3b e3c) (unpack /y_bit./y_tail.
+                (compare x_tail y_tail)
+                e3a                                               # compare tails returned e3a
+                (if_then_else (bools_are_equal x_bit y_bit) e3b ( # compare tails returned e3b
+                    if_then_else x_bit e3c e3a
+                ))
+                e3c                                               # compare tails returned e3c
+            )
+        );
+    are_equal        = /x./y. (compare x y) false true  false;
+    less_than        = /x./y. (compare x y) true  false false;
+    less_or_equal    = /x./y. (compare x y) true  true  false;
+    greater_than     = /x./y. (compare x y) false false true;
+    greater_or_equal = /x./y. (compare x y) false true  true;
     add = recursive /add. /n./m.
         n m (unpack /n_bit./n_tail.
             m n (unpack /m_bit./m_tail.
