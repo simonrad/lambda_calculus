@@ -130,6 +130,7 @@ let {
             )
         );
     are_equal        = /x./y. (compare x y) false true  false;
+    are_not_equal    = /x./y. (compare x y) true  false true;
     less_than        = /x./y. (compare x y) true  false false;
     less_or_equal    = /x./y. (compare x y) true  true  false;
     greater_than     = /x./y. (compare x y) false false true;
@@ -155,7 +156,14 @@ let {
             )
         );
     sub = /n./m. if_then_else (greater_than n m) (sub_unsafe n m) bn_0; # Returns 0 if n <= m. Does not require n or m to be normalized.
-    mult = /x.x; # TODO
+    mult = recursive /mult. /n./m.
+        n bn_0 (unpack /n_bit./n_tail.
+            let {
+                result = mult n_tail m;
+                result = bn_cons false result;
+                result = if_then_else n_bit (add m result) result;
+            }(result)
+        );
     factorial = /x.x; # TODO
     divide = /x.x; # TODO
     apply_n_times = /x.x; # TODO

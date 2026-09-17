@@ -764,16 +764,38 @@ def run_tests():
         (wrap_prefix_lc + 'bn_is_normalized (sub  12   8)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (sub  75  45)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (sub 977 766)', expr_to_bool, True),
+        (wrap_prefix_lc + 'mult   0   0', expr_to_int, 0),
+        (wrap_prefix_lc + 'mult   3   7', expr_to_int, 21),
+        (wrap_prefix_lc + 'mult   7   3', expr_to_int, 21),
+        (wrap_prefix_lc + 'mult   0   1', expr_to_int, 0),
+        (wrap_prefix_lc + 'mult   1   0', expr_to_int, 0),
+        (wrap_prefix_lc + 'mult   0   2', expr_to_int, 0),
+        (wrap_prefix_lc + 'mult   2   0', expr_to_int, 0),
+        (wrap_prefix_lc + 'mult   8  12', expr_to_int, 8 * 12),
+        (wrap_prefix_lc + 'mult  12   8', expr_to_int, 12 * 8),
+        (wrap_prefix_lc + 'mult  75  45', expr_to_int, 75 * 45),
+        (wrap_prefix_lc + 'mult 977 766', expr_to_int, 977 * 766),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   0   0)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   3   7)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   7   3)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   0   1)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   1   0)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   0   2)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   2   0)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult   8  12)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult  12   8)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult  75  45)', expr_to_bool, True),
+        (wrap_prefix_lc + 'bn_is_normalized (mult 977 766)', expr_to_bool, True),
 
         # TODO: Add tests of:
         #   - compare
         #   - are_equal
+        #   - are_not_equal
         #   - less_than
         #   - less_or_equal
         #   - greater_than
         #   - greater_or_equal
         #
-        #   - mult
         #   - factorial
         #   - divide
         #   - apply_n_times
@@ -796,6 +818,17 @@ def run_tests():
     #     for j in range(i+3):
     #         eval_test_cases.append(
     #             (wrap_prefix_lc + 'bn_is_normalized (sub {} {})'.format(i, j), expr_to_bool, True)
+    #         )
+
+    # for i in range(20):
+    #     for j in range(20):
+    #         eval_test_cases.append(
+    #             (wrap_prefix_lc + 'mult (bn_unnormalize {}) (bn_unnormalize {})'.format(i, j), expr_to_int, i * j)
+    #         )
+    # for i in range(20):
+    #     for j in range(20):
+    #         eval_test_cases.append(
+    #             (wrap_prefix_lc + 'bn_is_normalized (mult {} {})'.format(i, j), expr_to_bool, True)
     #         )
 
     print('Eval test cases:')
