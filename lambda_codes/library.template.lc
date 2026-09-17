@@ -71,7 +71,7 @@ let {
     fold_from_right = recursive /fold_from_right. /list./start_val./reduce. list start_val (unpack /head./tail. reduce head (fold_from_right tail start_val reduce));
     last_of = /list./if_nil. fold_from_left list if_nil /v./s. v;
     reverse = /x.x; # TODO
-    concat = /x.x; # TODO
+    concat = /l./r. fold_from_right l r cons;
     map = /x.x; # TODO
     flatten = /x.x; # TODO
     flat_map = /x.x; # TODO
@@ -112,7 +112,7 @@ let {
     bn_is_normalized = /n. last_of n true; # A "normalized" BNN is where the most significant bit is 1
     bn_normalize_unnormalized = /n. fold_from_right n nil bn_cons;
     bn_normalize = /n. (bn_is_normalized n) n (bn_normalize_unnormalized n);
-    bn_unnormalize = /n. fold_from_right n (cons false (cons false (cons false nil))) cons;
+    bn_unnormalize = /n. concat n (cons false (cons false (cons false nil)));
     is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
     incr = recursive /incr. /n. n bn_1 (unpack /head./tail. if_then_else head (bn_cons false (incr tail)) (bn_cons true tail));
     decr_normalized = recursive /decr_normalized. /n. n bn_0 (unpack /head./tail. if_then_else head (bn_cons false tail) (bn_cons true (decr_normalized tail))); # Requires n is normalized OR n > 0
