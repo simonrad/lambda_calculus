@@ -113,11 +113,11 @@ let {
     bn_normalize_unnormalized = /n. fold_from_right n nil bn_cons;
     bn_normalize = /n. (bn_is_normalized n) n (bn_normalize_unnormalized n);
     bn_unnormalize = /n. fold_from_right n (cons false (cons false (cons false nil))) cons;
+    is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
     incr = recursive /incr. /n. n bn_1 (unpack /head./tail. if_then_else head (bn_cons false (incr tail)) (bn_cons true tail));
     decr_normalized = recursive /decr_normalized. /n. n bn_0 (unpack /head./tail. if_then_else head (bn_cons false tail) (bn_cons true (decr_normalized tail))); # Requires n is normalized OR n > 0
-    decr = /n. decr_normalized (bn_normalize n); # Note that (decr 0) is 0
+    decr = /n. if_then_else (is_zero n) bn_0 (decr_normalized n); # Note that (decr 0) is 0
     cn_to_bn = /n. n incr bn_0;
-    is_zero = recursive /is_zero. /n. n true (unpack /head./tail. if_then_else head false (is_zero tail)); # Works even if n is not normalized
     compare = recursive /compare. /x./y. # Returns e3a if x < y, e3b if x == y, or e3c if x > y
         x (if_then_else (is_zero y) e3b e3a) (unpack /x_bit./x_tail.
             y (if_then_else (is_zero x) e3b e3c) (unpack /y_bit./y_tail.
