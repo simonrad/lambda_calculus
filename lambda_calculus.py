@@ -717,20 +717,45 @@ def run_tests():
         (wrap_prefix_lc + 'bn_is_normalized (add 389480456237 7924028946985)', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add (cons false (cons false nil)) (cons false (cons false nil)))', expr_to_bool, True),
         (wrap_prefix_lc + 'bn_is_normalized (add (cons true (cons false (cons false nil))) (cons false (cons false nil)))', expr_to_bool, False), # Note `add` does not always return a normalized result if the input is not normalized
+        (wrap_prefix_lc + 'bn_unnormalize 10', expr_to_int, 10),
+        (wrap_prefix_lc + 'bn_is_normalized (bn_unnormalize 10)', expr_to_bool, False),
+        (wrap_prefix_lc + 'decr_normalized (bn_unnormalize 0)', expr_to_int, 7),
+        (wrap_prefix_lc + 'sub   3   7', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub   7   3', expr_to_int, 4),
+        (wrap_prefix_lc + 'sub   0   1', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub   1   0', expr_to_int, 1),
+        (wrap_prefix_lc + 'sub   0   2', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub   2   0', expr_to_int, 2),
+        (wrap_prefix_lc + 'sub   8  12', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub  12   8', expr_to_int, 4),
+        (wrap_prefix_lc + 'sub  75  45', expr_to_int, 30),
+        (wrap_prefix_lc + 'sub 977 766', expr_to_int, 211),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   3) (bn_unnormalize   7)', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   7) (bn_unnormalize   3)', expr_to_int, 4),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   0) (bn_unnormalize   1)', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   1) (bn_unnormalize   0)', expr_to_int, 1),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   0) (bn_unnormalize   2)', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   2) (bn_unnormalize   0)', expr_to_int, 2),
+        (wrap_prefix_lc + 'sub (bn_unnormalize   8) (bn_unnormalize  12)', expr_to_int, 0),
+        (wrap_prefix_lc + 'sub (bn_unnormalize  12) (bn_unnormalize   8)', expr_to_int, 4),
+        (wrap_prefix_lc + 'sub (bn_unnormalize  75) (bn_unnormalize  45)', expr_to_int, 30),
+        (wrap_prefix_lc + 'sub (bn_unnormalize 977) (bn_unnormalize 766)', expr_to_int, 211),
+        (wrap_prefix_lc + 'sub (               977) (bn_unnormalize 766)', expr_to_int, 211),
+        (wrap_prefix_lc + 'sub (bn_unnormalize 977) (               766)', expr_to_int, 211),
 
         # TODO: Add tests of:
-        #   - sub
-        #   - mult
-        #   - factorial
-        #   - divide
-        #   - apply_n_times
-        #   - bn_to_cn
         #   - compare
         #   - are_equal
         #   - less_than
         #   - less_or_equal
         #   - greater_than
         #   - greater_or_equal
+        #
+        #   - mult
+        #   - factorial
+        #   - divide
+        #   - apply_n_times
+        #   - bn_to_cn
         #
         #   - reverse
         #   - concat
@@ -739,6 +764,12 @@ def run_tests():
         #   - flat_map
         #   - len
     )
+
+    # for i in range(50):
+    #     for j in range(50):
+    #         eval_test_cases.append(
+    #             (wrap_prefix_lc + 'sub (bn_unnormalize {}) (bn_unnormalize {})'.format(i, j), expr_to_int, max(i - j, 0))
+    #         )
 
     print('Eval test cases:')
     for (input_lc_code, transform_func, expected_output) in eval_test_cases:
