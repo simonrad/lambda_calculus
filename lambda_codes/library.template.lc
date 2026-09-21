@@ -42,7 +42,7 @@ let {
     cn_mult = /n./m. /f. n (m f);
     cn_exp  = /n./m. m n;
     cn_is_zero = /n. /x./y. n (/z.y) x;
-    cn_factorial = recursive /cn_factorial. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_factorial (cn_pred n)) n );
+    cn_factorial = recursive /cn_factorial. /n. if_then_else (cn_is_zero n) cn_1 (cn_mult (cn_factorial (cn_pred n)) n);
 
 
     # Optional values:
@@ -176,7 +176,7 @@ let {
                     q = if_then_else should_subtract_d_from_r (incr q) q;
                 }(pair q r)
         );
-    factorial = /x.x; # TODO
+    factorial = recursive /factorial. /n. if_then_else (is_zero n) bn_1 (mult (factorial (decr n)) n);
     apply_n_times = /x.x; # TODO
     bn_to_cn = /x.x; # TODO
 

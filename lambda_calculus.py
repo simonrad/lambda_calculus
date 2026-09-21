@@ -21,11 +21,11 @@ from types import NoneType
 # Done: Consider adding syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
 # Done: Test eval on factorial of 5. It's fast, and correct!
 # Done: Add syntax sugar for binary number literals like 42
+# Done: Test factorial of 7 with binary numbers natively. (It does not require a high recursion depth, unlike Church numerals.)
 
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 
-# TODO: Test factorial of 6 with binary numbers natively. Is it fast? Does it require a high recursion depth?
 # TODO: Write some LC functions
 #   - booleans
 #   - optional values
@@ -808,6 +808,15 @@ def run_tests():
         (wrap_prefix_lc + 'divide 2 0 false', expr_to_int, 2),
         (wrap_prefix_lc + 'divide 3 0 true', expr_to_int, 3),
         (wrap_prefix_lc + 'divide 3 0 false', expr_to_int, 3),
+        (wrap_prefix_lc + 'factorial 7',  expr_to_int, 2*3*4*5*6*7),
+        (wrap_prefix_lc + 'factorial 8',  expr_to_int, 2*3*4*5*6*7*8),
+        (wrap_prefix_lc + 'factorial 9',  expr_to_int, 2*3*4*5*6*7*8*9),
+        (wrap_prefix_lc + 'factorial 10', expr_to_int, 2*3*4*5*6*7*8*9*10),
+        (wrap_prefix_lc + 'factorial 11', expr_to_int, 2*3*4*5*6*7*8*9*10*11),
+        (wrap_prefix_lc + 'factorial 12', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12),
+        (wrap_prefix_lc + 'factorial 13', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13),
+        (wrap_prefix_lc + 'factorial 14', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14),
+        (wrap_prefix_lc + 'factorial 15', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14*15),
 
         # TODO: Add tests of:
         #   - compare
@@ -818,7 +827,6 @@ def run_tests():
         #   - greater_than
         #   - greater_or_equal
         #
-        #   - factorial
         #   - apply_n_times
         #   - bn_to_cn
         #
