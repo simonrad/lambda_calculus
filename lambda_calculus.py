@@ -817,6 +817,7 @@ def run_tests():
         (wrap_prefix_lc + 'factorial 13', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13),
         (wrap_prefix_lc + 'factorial 14', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14),
         (wrap_prefix_lc + 'factorial 15', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14*15),
+        (wrap_prefix_lc + 'item_of (prev_of (next_of (next_of (make_doubly_linked_list (cons 100 (cons 101 (cons 102 nil))) nil)))) 50', expr_to_int, 101),
 
         # TODO: Add tests of:
         #   - compare

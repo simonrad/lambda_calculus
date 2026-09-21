@@ -185,5 +185,17 @@ let {
     # --------------------------------------
     len = /x.x; # TODO
 
+
+    # Doubly Linked Lists:
+    # --------------------------------------
+    make_doubly_linked_list = recursive /make_doubly_linked_list. /sll./prev. recursive /head. sll nil (unpack /sll_head./sll_tail.
+        some (
+            tuple3 prev sll_head (make_doubly_linked_list sll_tail head)
+        )
+    );
+    prev_of = /dll_node. dll_node nil /t3. t3 e3a;
+    next_of = /dll_node. dll_node nil /t3. t3 e3c;
+    item_of = /dll_node./if_nil. dll_node if_nil /t3. t3 e3b;
+
 }
 ( {INSERT_WRAPPED_CODE} )
