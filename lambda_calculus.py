@@ -210,7 +210,9 @@ def build_binary_natural_number_ast(n: int) -> Ast:
         lc_code = '(cons {} {})'.format(bit_bool_str, lc_code)
 
     lc_code = '#wrap_with_template ./lambda_codes/minimal_library.template.lc\n' + lc_code
-    return parse_fully(lc_code)
+    result_ast = parse_fully(lc_code)
+    assert len(result_ast.free_vars) == 0, 'Expected no free vars; got {!r}'.format(set(result_ast.free_vars))
+    return result_ast
 
 def parse_let_syntax_sugar(code_between_braces: str, main_code_between_parens: str) -> Ast:
     '''
@@ -630,8 +632,8 @@ def run_tests():
         (wrap_prefix_lc + 'cn_5 not false # Return true if odd', expr_to_bool, True),
         (wrap_prefix_lc + '(cn_factorial cn_5) not false # Return false if even', expr_to_bool, False),
         (wrap_prefix_lc + 'cn_to_bn (cn_factorial cn_5)', expr_to_int, 120),
-        (wrap_prefix_lc + '0', expr_to_int, 0),
-        (wrap_prefix_lc + '(27)', expr_to_int, 27),
+        (                 '0', expr_to_int, 0),
+        (                 '(27)', expr_to_int, 27),
         (wrap_prefix_lc + 'incr 0', expr_to_int, 1),
         (wrap_prefix_lc + 'incr 1', expr_to_int, 2),
         (wrap_prefix_lc + 'incr 2', expr_to_int, 3),

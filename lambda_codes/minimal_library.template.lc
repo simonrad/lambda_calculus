@@ -6,8 +6,10 @@ let {
 
     true = /_true_x./y. _true_x;
     false = /_false_x./y. y;
+    none =       /if_none./if_some. if_none;
     some = /val. /if_none./if_some. if_some val;
-    pair = /x./y. /selector. selector x y;
+    nil = none; # Conventionally, we usually use nil for empty lists and none for empty options
+    pair = /a./b. /f. f a b;
     cons = /head./tail. some (pair head tail);
 
 }
