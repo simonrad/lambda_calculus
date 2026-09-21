@@ -35,6 +35,9 @@ from types import NoneType
 # TODO: Write tests of all the LC library functions
 # TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
 # TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
+#   Make a LC function like pair: type_tag_and_val_pair = /a./b. /_type_tag_and_val_pair_f. _type_tag_and_val_pair_f a b;
+#   Then I can tell if a value is a type_tag_and_val_pair
+#   Use a number to indicate the type
 #   I think the types we'd want to support rendering are:
 #   - Boolean
 #   - Binary natural number
