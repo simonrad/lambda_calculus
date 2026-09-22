@@ -184,6 +184,8 @@ let {
     # Lists, continued:
     # --------------------------------------
     len = /x.x; # TODO
+    nth_of = recursive /nth_of. /list./n./if_too_short. list if_too_short (unpack /head./tail. if_then_else (is_zero n) head (nth_of tail (decr n) if_too_short));
+    infinite_incr_seq = recursive /infinite_incr_seq. /start_num. cons start_num (infinite_incr_seq (incr start_num));
 
 
     # Doubly Linked Lists:

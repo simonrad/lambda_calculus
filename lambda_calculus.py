@@ -821,6 +821,10 @@ def run_tests():
         (wrap_prefix_lc + 'factorial 14', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14),
         (wrap_prefix_lc + 'factorial 15', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14*15),
         (wrap_prefix_lc + 'item_of (prev_of (next_of (next_of (make_doubly_linked_list (cons 100 (cons 101 (cons 102 nil))) nil)))) 50', expr_to_int, 101),
+        (wrap_prefix_lc + 'nth_of (infinite_incr_seq 10) 8 500', expr_to_int, 18),
+        (wrap_prefix_lc + 'nth_of (cons 10 nil) 0 500', expr_to_int, 10),
+        (wrap_prefix_lc + 'nth_of (cons 10 nil) 1 500', expr_to_int, 500),
+        (wrap_prefix_lc + 'nth_of (cons 10 nil) 8 500', expr_to_int, 500),
 
         # TODO: Add tests of:
         #   - compare
