@@ -868,19 +868,28 @@ def run_tests():
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 8 500', expr_to_int, 500),
         (wrap_prefix_lc + 'type_list (cons (type_bnn 72) (cons (type_bool true) (cons (type_list (cons (type_bool false) nil)) (cons (type_list nil) nil))))', as_type_tagged, (True, [72, True, [False], []])),
         (wrap_prefix_lc + 'type_list (cons 72 (cons (type_bnn 42) nil))', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
+        (wrap_prefix_lc + 'are_equal        (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'are_equal        (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'are_equal        (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'are_not_equal    (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'are_not_equal    (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'are_not_equal    (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'less_than        (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'less_than        (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'less_than        (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'less_or_equal    (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'less_or_equal    (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'less_or_equal    (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'greater_than     (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'greater_than     (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'greater_than     (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
+        (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, True),
 
         # TODO: Add tests of:
-        #   - compare
-        #   - are_equal
-        #   - are_not_equal
-        #   - less_than
-        #   - less_or_equal
-        #   - greater_than
-        #   - greater_or_equal
-        #
         #   - apply_n_times
         #   - bn_to_cn
-        #
         #   - reverse
         #   - concat
         #   - map
