@@ -72,7 +72,7 @@ let {
     last_of = /list./if_nil. fold_from_left list if_nil /v./s. v;
     reverse = /x.x; # TODO
     concat = /l./r. fold_from_right l r cons;
-    map = /x.x; # TODO
+    map = recursive /map. /list./map_func. list nil (unpack /head./tail. cons (map_func head) (map tail map_func));
     flatten = /x.x; # TODO
     flat_map = /x.x; # TODO
 
@@ -210,6 +210,7 @@ let {
     type_bool = type_tag_and_val_pair type_tag_bool;
     type_bnn  = type_tag_and_val_pair type_tag_bnn;
     type_list = type_tag_and_val_pair type_tag_list;
+    type_list_of = /map_func./list. type_list (map list map_func);
 
 }
 ( {INSERT_WRAPPED_CODE} )

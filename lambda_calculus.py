@@ -892,6 +892,7 @@ def run_tests():
         (wrap_prefix_lc + 'type_list [(type_bnn 72) (type_bool true) (type_list [(type_bool false)]) (type_list [])]', as_type_tagged, (True, [72, True, [False], []])),
         (wrap_prefix_lc + 'type_list (cons 72 (cons (type_bnn 42) nil))', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
         (wrap_prefix_lc + 'type_list [72 (type_bnn 42)]', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
+        (wrap_prefix_lc + 'type_list_of type_bnn [72 42 69 0 120]', as_type_tagged, (True, [72, 42, 69, 0, 120])),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, False),
