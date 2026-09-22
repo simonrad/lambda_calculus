@@ -10,6 +10,7 @@ import time
 from frozendict import frozendict # Third-party library [https://pypi.org/project/frozendict/]
 from functools import cached_property, lru_cache, wraps
 from types import NoneType
+from typing import Any
 
 
 # Done: Parse LC code
@@ -140,6 +141,11 @@ class Ast:
     def apply(self, arg: Ast) -> Ast:
         # TODO
         raise NotImplementedError('Ast.apply() is not yet implemented')
+
+    def reduce(self, mode) -> Ast:
+        # TODO
+        assert mode in ('lazy_full', 'lazy_to_lambda')
+        raise NotImplementedError('Ast.reduce() is not yet implemented')
 
     @cached_property
     def free_vars(self) -> frozenset[str]:
@@ -480,7 +486,7 @@ def as_optional(lc_value: Ast | Expr) -> (Ast | Expr | NoneType):
     nil_result_lc = '/{}.{}'.format(param_name, param_name)
 
     result = lc_value.apply(make_arg(nil_result_lc)).apply(make_arg('/x.x'))
-    result_ast = result if isinstance(result, Ast) else result.eval().ast
+    result_ast = result.reduce('lazy_to_lambda') if isinstance(result, Ast) else result.eval().ast
 
     if result_ast.kind == FUNCTION and result_ast.variable_name == param_name and result.to_code() == nil_result_lc:
         # The lc_value is nil.
@@ -531,6 +537,39 @@ def as_binary_natural_number(lc_value: Ast | Expr) -> int:
         for i, bit in enumerate(bits)
     )
 
+TYPE_TAG_BOOL = 10
+TYPE_TAG_BNN  = 11
+TYPE_TAG_LIST = 12
+NOT_TYPE_TAGGED = 'not_type_tagged'
+
+def as_type_tagged(lc_value: Ast | Expr) -> tuple[bool, Any]:
+    '''
+    Interprets the lc_value as a type_tag_and_val_pair if possible.
+    Returns (success, interpreted_value) where success is True iff the lc_value and all sub-values are type-tagged.
+    '''
+    lc_value_ast = lc_value.reduce('lazy_to_lambda') if isinstance(lc_value, Ast) else lc_value.eval().ast
+
+    if not (lc_value_ast.kind == FUNCTION and lc_value_ast.variable_name == '_type_tag_and_val_pair_f'):
+        return (False, NOT_TYPE_TAGGED)
+
+    type_tag, value = as_pair(lc_value)
+    type_tag = as_binary_natural_number(type_tag)
+
+    if type_tag == TYPE_TAG_BOOL:
+        return (True, as_bool(value))
+    elif type_tag == TYPE_TAG_BNN:
+        return (True, as_binary_natural_number(value))
+    elif type_tag == TYPE_TAG_LIST:
+        result_success = True
+        result_list = []
+        for e in as_list(value):
+            success, interpreted_e = as_type_tagged(e)
+            result_success = result_success and success
+            result_list.append(interpreted_e)
+        return (result_success, result_list)
+    else:
+        assert False, 'Unexpected type tag {}'.format(type_tag)
+
 
 def apply_templates(lc_code: str) -> str:
     '''
@@ -569,6 +608,8 @@ def run_code_from_stdin():
     lc_code = sys.stdin.read()
     expr = eval_lc(lc_code)
     print(expr.to_code())
+    is_type_tagged, interpreted_value = as_type_tagged(expr)
+    print(interpreted_value)
 
 
 def print_code_from_stdin():
@@ -825,6 +866,8 @@ def run_tests():
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 0 500', expr_to_int, 10),
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 1 500', expr_to_int, 500),
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 8 500', expr_to_int, 500),
+        (wrap_prefix_lc + 'type_list (cons (type_bnn 72) (cons (type_bool true) (cons (type_list (cons (type_bool false) nil)) (cons (type_list nil) nil))))', as_type_tagged, (True, [72, True, [False], []])),
+        (wrap_prefix_lc + 'type_list (cons 72 (cons (type_bnn 42) nil))', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
 
         # TODO: Add tests of:
         #   - compare

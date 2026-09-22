@@ -199,5 +199,17 @@ let {
     next_of = /dll_node. dll_node nil /t3. t3 e3c;
     item_of = /dll_node./if_nil. dll_node if_nil /t3. t3 e3b;
 
+
+    # Type tags:
+    # (A pair [type_tag, value] tells Python how to interpret the value)
+    # --------------------------------------
+    type_tag_and_val_pair = /a./b. /_type_tag_and_val_pair_f. _type_tag_and_val_pair_f a b; # Equivalent to `pair`
+    type_tag_bool = 10;
+    type_tag_bnn  = 11;
+    type_tag_list = 12;
+    type_bool = type_tag_and_val_pair type_tag_bool;
+    type_bnn  = type_tag_and_val_pair type_tag_bnn;
+    type_list = type_tag_and_val_pair type_tag_list;
+
 }
 ( {INSERT_WRAPPED_CODE} )

@@ -12,4 +12,8 @@
 
 # (cn_factorial cn_3)
 
-(cn_succ (cn_factorial cn_5)) not false
+# (cn_succ (cn_factorial cn_5)) not false
+
+# type_bnn (cn_to_bn (cn_factorial cn_6))
+
+type_bnn (factorial 20)
