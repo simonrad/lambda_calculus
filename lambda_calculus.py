@@ -61,6 +61,8 @@ FUNCTION = 'func'
 CALL = 'call'
 AST_TYPES = (VARIABLE, FUNCTION, CALL)
 
+MINIMAL_LIBRARY_PREFIX = '#wrap_with_template ./lambda_codes/minimal_library.template.lc\n'
+
 
 def memoize_method(maxsize = 128):
     def decorator(func):
@@ -218,7 +220,7 @@ def build_binary_natural_number_ast(n: int) -> Ast:
         bit_bool_str = str(bool(bit)).lower()
         lc_code = '(cons {} {})'.format(bit_bool_str, lc_code)
 
-    lc_code = '#wrap_with_template ./lambda_codes/minimal_library.template.lc\n' + lc_code
+    lc_code = MINIMAL_LIBRARY_PREFIX + lc_code
     result_ast = parse_fully(lc_code)
     assert len(result_ast.free_vars) == 0, 'Expected no free vars; got {!r}'.format(set(result_ast.free_vars))
     return result_ast
@@ -272,13 +274,14 @@ def remove_comments(lc_code: str) -> str:
         line.split('#', 1)[0] for line in lc_code.splitlines()
     )
 
-def parse(lc_code: str) -> Ast:
+def parse(lc_code: str, as_a_list = False) -> Ast:
     '''
     Returns an Ast of lc_code.
     Pre: Comments have already been removed from lc_code.
     '''
     lc_code = lc_code.strip()
-    assert len(lc_code) > 0, 'Attempted to parse an empty code string'
+    if not as_a_list:
+        assert len(lc_code) > 0, 'Attempted to parse an empty code string'
 
     # Parse lc_code as a sequence of 1 or more Asts.
     # If it ends up being just 1 Ast, parse() resolves to that Ast.
@@ -297,6 +300,19 @@ def parse(lc_code: str) -> Ast:
             index_of_close_paren = match_paren(lc_code, i)
             ast_list.append(parse(lc_code[i+1:index_of_close_paren]))
             i = index_of_close_paren + 1
+        elif lc_code[i] == '[':
+            # Support some syntax sugar: [val1 val2 val3] for a singly linked list.
+            index_of_close_bracket = match_paren(lc_code, i, '[', ']')
+            values = parse(lc_code[i+1:index_of_close_bracket], as_a_list = True)
+            # Build a linked list of the values.
+            list_ast = NIL_AST
+            for val in reversed(values):
+                # Build list_ast = (cons {val} {list_ast}).
+                first_call = Ast(CALL, CONS_AST, val)
+                second_call = Ast(CALL, first_call, list_ast)
+                list_ast = second_call
+            ast_list.append(list_ast)
+            i = index_of_close_bracket + 1
         elif lc_code[i:i+3] == 'let' and (match_obj := re.match(r'let\s*{', lc_code[i:])):
             # Support some syntax sugar: let{var1=expr1;var2=expr2;}(expr) -> (/var1.(/var2.expr)expr2)expr1
             # Note that the final var=expr must end in a ';'.
@@ -331,11 +347,14 @@ def parse(lc_code: str) -> Ast:
                 i += 1
             ast_list.append(Ast(VARIABLE, variable_name))
 
-    assert len(ast_list) >= 1
-    result = ast_list[0]
-    for ast in ast_list[1:]:
-        result = Ast(CALL, result, ast)
-    return result
+    if as_a_list:
+        return ast_list
+    else:
+        assert len(ast_list) >= 1
+        result = ast_list[0]
+        for ast in ast_list[1:]:
+            result = Ast(CALL, result, ast)
+        return result
 
 
 class Expr:
@@ -603,6 +622,9 @@ def eval_lc(lc_code: str) -> Expr:
     expr = Expr(ast, frozendict({}))
     return expr.eval()
 
+NIL_AST = parse_fully(MINIMAL_LIBRARY_PREFIX + 'nil')
+CONS_AST = parse_fully(MINIMAL_LIBRARY_PREFIX + 'cons')
+
 
 def run_code_from_stdin():
     lc_code = sys.stdin.read()
@@ -867,7 +889,9 @@ def run_tests():
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 1 500', expr_to_int, 500),
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 8 500', expr_to_int, 500),
         (wrap_prefix_lc + 'type_list (cons (type_bnn 72) (cons (type_bool true) (cons (type_list (cons (type_bool false) nil)) (cons (type_list nil) nil))))', as_type_tagged, (True, [72, True, [False], []])),
+        (wrap_prefix_lc + 'type_list [(type_bnn 72) (type_bool true) (type_list [(type_bool false)]) (type_list [])]', as_type_tagged, (True, [72, True, [False], []])),
         (wrap_prefix_lc + 'type_list (cons 72 (cons (type_bnn 42) nil))', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
+        (wrap_prefix_lc + 'type_list [72 (type_bnn 42)]', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, False),
