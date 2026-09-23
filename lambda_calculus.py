@@ -23,30 +23,14 @@ from typing import Any
 # Done: Test eval on factorial of 5. It's fast, and correct!
 # Done: Add syntax sugar for binary number literals like 42
 # Done: Test factorial of 7 with binary numbers natively. (It does not require a high recursion depth, unlike Church numerals.)
+# Done: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
+# Done: Support returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
 
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
 
 # TODO: Write some LC functions
-#   - booleans
-#   - optional values
-#   - pairs
-#   - lists
-#   - binary numbers
 # TODO: Write tests of all the LC library functions
-# TODO: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
-# TODO: Consider returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
-#   Make a LC function like pair: type_tag_and_val_pair = /a./b. /_type_tag_and_val_pair_f. _type_tag_and_val_pair_f a b;
-#   Then I can tell if a value is a type_tag_and_val_pair
-#   Use a number to indicate the type
-#   I think the types we'd want to support rendering are:
-#   - Boolean
-#   - Binary natural number
-#   - List (where each item has its own type tag)
-#   - String (possibly in the future)
-#   - IO (possibly in the future; unlikely to do all that though!)
-#   (Church numerals can be converted to binary numbers, which are easier to render anyway.)
-# TODO: Add some more test cases
 
 # TODO: Consider passing debug info about code location into parse() and Ast()
 
@@ -62,6 +46,11 @@ CALL = 'call'
 AST_TYPES = (VARIABLE, FUNCTION, CALL)
 
 MINIMAL_LIBRARY_PREFIX = '#wrap_with_template ./lambda_codes/minimal_library.template.lc\n'
+
+TYPE_TAG_BOOL = 10
+TYPE_TAG_BNN  = 11
+TYPE_TAG_LIST = 12
+NOT_TYPE_TAGGED = 'not_type_tagged'
 
 
 def memoize_method(maxsize = 128):
@@ -556,11 +545,6 @@ def as_binary_natural_number(lc_value: Ast | Expr) -> int:
         for i, bit in enumerate(bits)
     )
 
-TYPE_TAG_BOOL = 10
-TYPE_TAG_BNN  = 11
-TYPE_TAG_LIST = 12
-NOT_TYPE_TAGGED = 'not_type_tagged'
-
 def as_type_tagged(lc_value: Ast | Expr) -> tuple[bool, Any]:
     '''
     Interprets the lc_value as a type_tag_and_val_pair if possible.
@@ -888,9 +872,7 @@ def run_tests():
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 0 500', expr_to_int, 10),
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 1 500', expr_to_int, 500),
         (wrap_prefix_lc + 'nth_of (cons 10 nil) 8 500', expr_to_int, 500),
-        (wrap_prefix_lc + 'type_list (cons (type_bnn 72) (cons (type_bool true) (cons (type_list (cons (type_bool false) nil)) (cons (type_list nil) nil))))', as_type_tagged, (True, [72, True, [False], []])),
         (wrap_prefix_lc + 'type_list [(type_bnn 72) (type_bool true) (type_list [(type_bool false)]) (type_list [])]', as_type_tagged, (True, [72, True, [False], []])),
-        (wrap_prefix_lc + 'type_list (cons 72 (cons (type_bnn 42) nil))', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
         (wrap_prefix_lc + 'type_list [72 (type_bnn 42)]', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
         (wrap_prefix_lc + 'type_list_of type_bnn [72 42 69 0 120]', as_type_tagged, (True, [72, 42, 69, 0, 120])),
         (wrap_prefix_lc + 'are_equal        (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
@@ -912,13 +894,12 @@ def run_tests():
         (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
         (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, True),
         (wrap_prefix_lc + 'type_list_of type_bnn (reverse [100 3 4 5 6 7])', as_type_tagged, (True, [7, 6, 5, 4, 3, 100])),
+        (wrap_prefix_lc + 'type_list_of type_bnn (concat [100 3 4] [5 6 7])', as_type_tagged, (True, [100, 3, 4, 5, 6, 7])),
+        (wrap_prefix_lc + 'type_list_of type_bnn (map [100 3 4 5 6 7] /x. mult 2 x)', as_type_tagged, (True, [200, 6, 8, 10, 12, 14])),
 
         # TODO: Add tests of:
         #   - apply_n_times
         #   - bn_to_cn
-        #   - reverse
-        #   - concat
-        #   - map
         #   - flatten
         #   - flat_map
         #   - len
