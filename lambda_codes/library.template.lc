@@ -76,7 +76,7 @@ let {
     flatten = recursive /flatten. /list. list nil (unpack /head./tail. head (flatten tail) (unpack /head_head./head_tail. cons head_head (flatten (cons head_tail tail))));
     flatten_alt = /list. fold_from_right list nil concat; # Simpler, but doesn't work on infinite lists
     flat_map = /list./map_func. flatten (map list map_func);
-    filter = recursive /filter. /list./keep_func. /x.x; # TODO
+    filter = recursive /filter. /list./keep_func. list nil (unpack /head./tail. if_then_else (keep_func head) (cons head (filter tail keep_func)) (filter tail keep_func));
 
 
     # Enums:
