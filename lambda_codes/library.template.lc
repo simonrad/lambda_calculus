@@ -70,7 +70,7 @@ let {
     fold_from_left = recursive /fold_from_left. /list./start_val./reduce. list start_val (unpack /head./tail. fold_from_left tail (reduce head start_val) reduce);
     fold_from_right = recursive /fold_from_right. /list./start_val./reduce. list start_val (unpack /head./tail. reduce head (fold_from_right tail start_val reduce));
     last_of = /list./if_nil. fold_from_left list if_nil /v./s. v;
-    reverse = /x.x; # TODO
+    reverse = /list. fold_from_left list nil cons;
     concat = /l./r. fold_from_right l r cons;
     map = recursive /map. /list./map_func. list nil (unpack /head./tail. cons (map_func head) (map tail map_func));
     flatten = /x.x; # TODO

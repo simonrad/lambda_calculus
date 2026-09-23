@@ -911,6 +911,7 @@ def run_tests():
         (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize  8) (bn_unnormalize  9)', expr_to_bool, False),
         (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize  9) (bn_unnormalize  9)', expr_to_bool, True),
         (wrap_prefix_lc + 'greater_or_equal (bn_unnormalize 10) (bn_unnormalize  9)', expr_to_bool, True),
+        (wrap_prefix_lc + 'type_list_of type_bnn (reverse [100 3 4 5 6 7])', as_type_tagged, (True, [7, 6, 5, 4, 3, 100])),
 
         # TODO: Add tests of:
         #   - apply_n_times
