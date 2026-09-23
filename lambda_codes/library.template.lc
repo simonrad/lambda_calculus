@@ -71,9 +71,9 @@ let {
     fold_from_right = recursive /fold_from_right. /list./start_val./reduce. list start_val (unpack /head./tail. reduce head (fold_from_right tail start_val reduce));
     last_of = /list./if_nil. fold_from_left list if_nil /v./s. v;
     reverse = /list. fold_from_left list nil cons;
-    concat = /l./r. fold_from_right l r cons;
+    concat = /l./r. if_then_else (is_nil r) l (fold_from_right l r cons);
     map = recursive /map. /list./map_func. list nil (unpack /head./tail. cons (map_func head) (map tail map_func));
-    flatten = /x.x; # TODO
+    flatten = /list. fold_from_right list nil concat;
     flat_map = /x.x; # TODO
 
 
