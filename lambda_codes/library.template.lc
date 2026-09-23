@@ -186,6 +186,7 @@ let {
     # --------------------------------------
     len = /x.x; # TODO
     nth_of = recursive /nth_of. /list./n./if_too_short. list if_too_short (unpack /head./tail. if_then_else (is_zero n) head (nth_of tail (decr n) if_too_short));
+    first_n_of = recursive /first_n_of. /list./n. list nil (unpack /head./tail. if_then_else (is_zero n) nil (cons head (first_n_of tail (decr n))));
     infinite_incr_seq = recursive /infinite_incr_seq. /start_num. cons start_num (infinite_incr_seq (incr start_num));
 
 
@@ -210,6 +211,7 @@ let {
         }(prepend_n_if_prime continuation);
     infinite_primes_seq = cons 2 (infinite_primes_seq_helper 3 [2] [] 4);
     is_prime = is_prime_given_priors infinite_primes_seq;
+    is_prime_alt = is_prime_given_priors (infinite_incr_seq 2);
 
 
     # Doubly linked lists:

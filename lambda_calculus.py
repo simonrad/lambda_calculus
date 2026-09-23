@@ -911,11 +911,13 @@ def run_tests():
         (wrap_prefix_lc + 'is_prime 12', expr_to_bool, False),
         (wrap_prefix_lc + 'is_prime 13', expr_to_bool, True),
         (wrap_prefix_lc + 'is_prime 97', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime_alt 95', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime_alt 96', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime_alt 97', expr_to_bool, True),
         (wrap_prefix_lc + 'nth_of infinite_primes_seq 24 0', expr_to_int, 97),
+        (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of infinite_primes_seq 10)', as_type_tagged, (True, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29])),
 
         # TODO: Add tests of:
-        #   - infinite_primes_seq
-        #   - is_prime
         #   - apply_n_times
         #   - bn_to_cn
         #   - flatten
