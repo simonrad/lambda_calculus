@@ -868,10 +868,10 @@ def run_tests():
         (wrap_prefix_lc + 'factorial 14', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14),
         (wrap_prefix_lc + 'factorial 15', expr_to_int, 2*3*4*5*6*7*8*9*10*11*12*13*14*15),
         (wrap_prefix_lc + 'item_of (prev_of (next_of (next_of (make_doubly_linked_list [100 101 102] nil)))) 50', expr_to_int, 101),
-        (wrap_prefix_lc + 'nth_of (infinite_incr_seq 10) 8 500', expr_to_int, 18),
-        (wrap_prefix_lc + 'nth_of [10] 0 500', expr_to_int, 10),
-        (wrap_prefix_lc + 'nth_of [10] 1 500', expr_to_int, 500),
-        (wrap_prefix_lc + 'nth_of [10] 8 500', expr_to_int, 500),
+        (wrap_prefix_lc + 'nth_of 8 500 (infinite_incr_seq 10)', expr_to_int, 18),
+        (wrap_prefix_lc + 'nth_of 0 500 [10]', expr_to_int, 10),
+        (wrap_prefix_lc + 'nth_of 1 500 [10]', expr_to_int, 500),
+        (wrap_prefix_lc + 'nth_of 8 500 [10]', expr_to_int, 500),
         (wrap_prefix_lc + 'type_list [(type_bnn 72) (type_bool true) (type_list [(type_bool false)]) (type_list [])]', as_type_tagged, (True, [72, True, [False], []])),
         (wrap_prefix_lc + 'type_list [72 (type_bnn 42)]', as_type_tagged, (False, [NOT_TYPE_TAGGED, 42])),
         (wrap_prefix_lc + 'type_list_of type_bnn [72 42 69 0 120]', as_type_tagged, (True, [72, 42, 69, 0, 120])),
@@ -920,14 +920,16 @@ def run_tests():
         (wrap_prefix_lc + 'is_prime_alt 95', expr_to_bool, False),
         (wrap_prefix_lc + 'is_prime_alt 96', expr_to_bool, False),
         (wrap_prefix_lc + 'is_prime_alt 97', expr_to_bool, True),
-        (wrap_prefix_lc + 'nth_of infinite_primes_seq 24 0', expr_to_int, 97),
-        (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of infinite_primes_seq 10)', as_type_tagged, (True, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29])),
+        (wrap_prefix_lc + 'nth_of 24 0 infinite_primes_seq', expr_to_int, 97),
+        (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 10 infinite_primes_seq)', as_type_tagged, (True, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29])),
+        (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 15 (flat_map (infinite_incr_seq 0) /item. if_then_else (head_of item false) [] [item]))', as_type_tagged, (True, list(range(0, 30, 2)))),
+        (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 8  (flat_map (infinite_incr_seq 0) /item. if_then_else (head_of item false) [] [item item]))', as_type_tagged, (True, [0, 0, 2, 2, 4, 4, 6, 6])),
+        (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 7 (concat [1 2 3] (infinite_incr_seq 0)))', as_type_tagged, (True, [1, 2, 3, 0, 1, 2, 3])),
 
         # TODO: Add tests of:
         #   - apply_n_times
         #   - bn_to_cn
-        #   - flatten
-        #   - flat_map
+        #   - filter
         #   - len
     ]
 

@@ -73,8 +73,10 @@ let {
     reverse = /list. fold_from_left list nil cons;
     concat = /l./r. if_then_else (is_nil r) l (fold_from_right l r cons);
     map = recursive /map. /list./map_func. list nil (unpack /head./tail. cons (map_func head) (map tail map_func));
-    flatten = /list. fold_from_right list nil concat;
-    flat_map = /x.x; # TODO
+    flatten = recursive /flatten. /list. list nil (unpack /head./tail. head (flatten tail) (unpack /head_head./head_tail. cons head_head (flatten (cons head_tail tail))));
+    flatten_alt = /list. fold_from_right list nil concat; # Simpler, but doesn't work on infinite lists
+    flat_map = /list./map_func. flatten (map list map_func);
+    filter = recursive /filter. /list./keep_func. /x.x; # TODO
 
 
     # Enums:
@@ -185,8 +187,8 @@ let {
     # Lists, continued:
     # --------------------------------------
     len = /x.x; # TODO
-    nth_of = recursive /nth_of. /list./n./if_too_short. list if_too_short (unpack /head./tail. if_then_else (is_zero n) head (nth_of tail (decr n) if_too_short));
-    first_n_of = recursive /first_n_of. /list./n. list nil (unpack /head./tail. if_then_else (is_zero n) nil (cons head (first_n_of tail (decr n))));
+    nth_of = recursive /nth_of. /n./if_too_short./list. list if_too_short (unpack /head./tail. if_then_else (is_zero n) head (nth_of (decr n) if_too_short tail));
+    first_n_of = recursive /first_n_of. /n./list. list nil (unpack /head./tail. if_then_else (is_zero n) nil (cons head (first_n_of (decr n) tail)));
     infinite_incr_seq = recursive /infinite_incr_seq. /start_num. cons start_num (infinite_incr_seq (incr start_num));
 
 
