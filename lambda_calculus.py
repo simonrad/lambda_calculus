@@ -896,8 +896,26 @@ def run_tests():
         (wrap_prefix_lc + 'type_list_of type_bnn (reverse [100 3 4 5 6 7])', as_type_tagged, (True, [7, 6, 5, 4, 3, 100])),
         (wrap_prefix_lc + 'type_list_of type_bnn (concat [100 3 4] [5 6 7])', as_type_tagged, (True, [100, 3, 4, 5, 6, 7])),
         (wrap_prefix_lc + 'type_list_of type_bnn (map [100 3 4 5 6 7] /x. mult 2 x)', as_type_tagged, (True, [200, 6, 8, 10, 12, 14])),
+        (wrap_prefix_lc + 'is_prime 0', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 1', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 2', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime 3', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime 4', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 5', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime 6', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 7', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime 8', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 9', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 10', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 11', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime 12', expr_to_bool, False),
+        (wrap_prefix_lc + 'is_prime 13', expr_to_bool, True),
+        (wrap_prefix_lc + 'is_prime 97', expr_to_bool, True),
+        (wrap_prefix_lc + 'nth_of infinite_primes_seq 24 0', expr_to_int, 97),
 
         # TODO: Add tests of:
+        #   - infinite_primes_seq
+        #   - is_prime
         #   - apply_n_times
         #   - bn_to_cn
         #   - flatten

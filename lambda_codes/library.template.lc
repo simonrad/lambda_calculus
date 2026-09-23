@@ -176,6 +176,7 @@ let {
                     q = if_then_else should_subtract_d_from_r (incr q) q;
                 }(pair q r)
         );
+    squared = /n. mult n n;
     factorial = recursive /factorial. /n. if_then_else (is_zero n) bn_1 (mult (factorial (decr n)) n);
     apply_n_times = /x.x; # TODO
     bn_to_cn = /x.x; # TODO
@@ -188,7 +189,30 @@ let {
     infinite_incr_seq = recursive /infinite_incr_seq. /start_num. cons start_num (infinite_incr_seq (incr start_num));
 
 
-    # Doubly Linked Lists:
+    # Prime numbers:
+    # --------------------------------------
+    is_prime_given_priors = recursive /is_prime_given_priors. /prior_primes./n. prior_primes true (unpack /head./tail.
+        if_then_else (less_than n 2) false (
+            if_then_else (greater_than (squared head) n) true (
+                (divide n head) /q./r.
+                    if_then_else (is_nil r) false (is_prime_given_priors tail n)
+        )));
+    infinite_primes_seq_helper = recursive /infinite_primes_seq_helper. /n./primes./more_primes_reversed./last_of_primes_squared.
+        let {
+            should_concat_primes = (and (not (is_nil more_primes_reversed)) (less_than last_of_primes_squared n));
+            last_of_primes_squared = if_then_else should_concat_primes (squared (head_of more_primes_reversed bn_0))  last_of_primes_squared;
+            primes                 = if_then_else should_concat_primes (concat primes (reverse more_primes_reversed)) primes;
+            more_primes_reversed   = if_then_else should_concat_primes nil                                            more_primes_reversed;
+            n_is_prime = is_prime_given_priors primes n;
+            prepend_n_if_prime = /list. if_then_else n_is_prime (cons n list) list;
+            more_primes_reversed = prepend_n_if_prime more_primes_reversed;
+            continuation = infinite_primes_seq_helper (incr (incr n)) primes more_primes_reversed last_of_primes_squared;
+        }(prepend_n_if_prime continuation);
+    infinite_primes_seq = cons 2 (infinite_primes_seq_helper 3 [2] [] 4);
+    is_prime = is_prime_given_priors infinite_primes_seq;
+
+
+    # Doubly linked lists:
     # --------------------------------------
     make_doubly_linked_list = recursive /make_doubly_linked_list. /sll./prev. recursive /head. sll nil (unpack /sll_head./sll_tail.
         some (
