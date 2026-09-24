@@ -180,8 +180,8 @@ let {
         );
     squared = /n. mult n n;
     factorial = recursive /factorial. /n. if_then_else (is_zero n) bn_1 (mult (factorial (decr n)) n);
-    apply_n_times = /x.x; # TODO
-    bn_to_cn = /x.x; # TODO
+    apply_n_times = recursive /apply_n_times. /n./f./x. if_then_else (is_zero n) x (f (apply_n_times (decr n) f x));
+    bn_to_cn = apply_n_times;
 
 
     # Lists, continued:

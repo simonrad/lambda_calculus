@@ -926,10 +926,10 @@ def run_tests():
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 15 (flat_map (infinite_incr_seq 0) /item. if_then_else (head_of item false) [] [item]))', as_type_tagged, (True, list(range(0, 30, 2)))),
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 8  (flat_map (infinite_incr_seq 0) /item. if_then_else (head_of item false) [] [item item]))', as_type_tagged, (True, [0, 0, 2, 2, 4, 4, 6, 6])),
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 7 (concat [1 2 3] (infinite_incr_seq 0)))', as_type_tagged, (True, [1, 2, 3, 0, 1, 2, 3])),
+        (wrap_prefix_lc + 'cn_to_bn (bn_to_cn 0)', expr_to_int, 0),
+        (wrap_prefix_lc + 'cn_to_bn (bn_to_cn 17)', expr_to_int, 17),
 
         # TODO: Add tests of:
-        #   - apply_n_times
-        #   - bn_to_cn
         #   - len
     ]
 
