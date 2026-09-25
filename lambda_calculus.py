@@ -25,12 +25,11 @@ from typing import Any
 # Done: Test factorial of 7 with binary numbers natively. (It does not require a high recursion depth, unlike Church numerals.)
 # Done: Interpret and print the resulting LC value nicely (e.g. true, 12, [4, 6, false])
 # Done: Support returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
+# Done: Write some LC functions
+# Done: Write tests of all the LC library functions
 
 # TODO: Fully beta reduce (substitute) the resulting Ast
 # TODO: Compare the performance of reduction vs Expr.eval()
-
-# TODO: Write some LC functions
-# TODO: Write tests of all the LC library functions
 
 # TODO: Consider passing debug info about code location into parse() and Ast()
 
@@ -939,9 +938,8 @@ def run_tests():
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 7 (concat [1 2 3] (infinite_incr_seq 0)))', as_type_tagged, (True, [1, 2, 3, 0, 1, 2, 3])),
         (wrap_prefix_lc + 'cn_to_bn (bn_to_cn 0)', expr_to_int, 0),
         (wrap_prefix_lc + 'cn_to_bn (bn_to_cn 17)', expr_to_int, 17),
-
-        # TODO: Add tests of:
-        #   - len
+        (wrap_prefix_lc + 'len [7 3 2 0 8]', expr_to_int, 5),
+        (wrap_prefix_lc + 'len []', expr_to_int, 0),
     ]
 
     # for i in range(20):

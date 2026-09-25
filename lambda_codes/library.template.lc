@@ -191,7 +191,7 @@ let {
 
     # Lists, continued:
     # --------------------------------------
-    len = /x.x; # TODO
+    len = recursive /len. /list. list bn_0 (unpack /head./tail. incr (len tail));
     nth_of = recursive /nth_of. /n./if_too_short./list. list if_too_short (unpack /head./tail. if_then_else (is_zero n) head (nth_of (decr n) if_too_short tail));
     first_n_of = recursive /first_n_of. /n./list. list nil (unpack /head./tail. if_then_else (is_zero n) nil (cons head (first_n_of (decr n) tail)));
     infinite_incr_seq = recursive /infinite_incr_seq. /start_num. cons start_num (infinite_incr_seq (incr start_num));
