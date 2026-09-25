@@ -131,8 +131,13 @@ let {
                 e3c                                               # compare tails returned e3c
             )
         );
-    are_equal        = /x./y. (compare x y) false true  false;
-    are_not_equal    = /x./y. (compare x y) true  false true;
+    are_equal = recursive /are_equal. /x./y.
+        x (is_zero y) (unpack /x_bit./x_tail.
+            y (is_zero x) (unpack /y_bit./y_tail.
+                if_then_else (bools_are_equal x_bit y_bit) (are_equal x_tail y_tail) false
+            )
+        );
+    are_not_equal    = /x./y. (not (are_equal x y));
     less_than        = /x./y. (compare x y) true  false false;
     less_or_equal    = /x./y. (compare x y) true  true  false;
     greater_than     = /x./y. (compare x y) false false true;
