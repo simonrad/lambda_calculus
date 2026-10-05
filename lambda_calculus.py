@@ -7,6 +7,7 @@ An interpreter (parser and evaluator) of lambda calculus code.
 import re
 import sys
 import time
+from collections.abc import Set
 from frozendict import frozendict # Third-party library [https://pypi.org/project/frozendict/]
 from functools import cached_property, lru_cache, wraps
 from types import NoneType
@@ -98,6 +99,55 @@ class Ast:
         self.kind = kind
         self.args = args
 
+    def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
+        '''
+        Returns self with (self.free_vars().intersection(substitutions.keys())) replaced with their substitutions.
+        '''
+        intersection_keys = self.free_vars().intersection(substitutions.keys())
+        if len(intersection_keys) == 0:
+            return self
+        if len(intersection_keys) == len(substitutions):
+            intersection_subs = substitutions
+        else:
+            intersection_subs = frozendict({k: substitutions[k] for k in intersection_keys})
+        return self._substitute(intersection_subs)
+
+    @memoize_method(maxsize = 512)
+    def _substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
+        assert type(substitutions) is frozendict
+        if self.kind == VARIABLE:
+            if self.variable_name not in substitutions:
+                return self
+            return substitutions[self.variable_name]
+        elif self.kind == FUNCTION:
+            # Note that `substitutions` has already been filtered to only the
+            # self.free_vars(), so it won't include self.variable_name.
+
+            # Do alpha conversion here if needed.
+            # To find an available var name for alpha conversion:
+            # Avoid the free vars of all the substitutions.values()
+            # plus the self.free_vars() that won't be substituted.
+            sub_var_names = [ast.free_vars() for ast in substitutions.values()]
+            taken_var_names = self.free_vars() - substitutions.keys()
+            taken_var_names = taken_var_names.union(*sub_var_names)
+            new_variable_name = find_available_var_name(self.variable_name, taken_var_names)
+            if new_variable_name != self.variable_name:
+                substitutions = substitutions.set(self.variable_name, Ast(VARIABLE, new_variable_name))
+
+            return Ast(
+                FUNCTION,
+                new_variable_name,
+                self.function_body.substitute(substitutions),
+            )
+        elif self.kind == CALL:
+            substituted_args = tuple(
+                arg.substitute(substitutions)
+                for arg in self.args
+            )
+            return Ast(CALL, *substituted_args)
+        else:
+            assert False
+
     def substitute_exprs(self, bindings: frozendict[str, Expr], nonfree_vars: frozenset[str]) -> Ast:
         '''
         Returns self with all free variables replaced with their bindings.
@@ -162,6 +212,24 @@ class Ast:
             return '(' + result + ')' if parens else result
         else:
             assert False
+
+def find_available_var_name(original_var_name: str, taken_var_names: Set[str]) -> str:
+    if original_var_name not in taken_var_names:
+        return original_var_name
+    base_name = original_var_name
+    suffix_int = 1
+    match_obj = re.match(r'^(.+)_(\d+)_$', original_var_name)
+    if match_obj:
+        # The original_var_name already ends in a number suffix (e.g. `some_var_1_`).
+        base_name, suffix_int_str = match_obj.groups()
+        suffix_int = int(suffix_int_str) + 1
+
+    # Add a number suffix like `_1_` to the base_name. Increment the suffix until we find an available var name.
+    while True:
+        new_var_name = f'{base_name}_{suffix_int}_'
+        if new_var_name not in taken_var_names:
+            return new_var_name
+        suffix_int += 1
 
 def is_identifier_char(s: str):
     # Note that s can be more than one character.
