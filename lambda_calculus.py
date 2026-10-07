@@ -101,6 +101,16 @@ class Ast:
         self.reduce_result = None # A cached result to avoid recomputing it.
         self.reduce_mode = None # The reduce mode that the reduce_result was generated for.
 
+    # def __hash__(self) -> int:
+    #     return hash(self.to_code_without_parens)
+
+    # def __eq__(self, other: object) -> bool:
+    #     if self is other:
+    #         return True
+    #     if not isinstance(other, Ast):
+    #         return False
+    #     return self.to_code_without_parens == other.to_code_without_parens
+
     def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         '''
         Returns self with self.free_vars.intersection(substitutions.keys()) replaced with their substitutions.
