@@ -98,8 +98,8 @@ class Ast:
             assert False
         self.kind = kind
         self.args = args
-        self.reduce_result = None # A cached result to avoid recomputing it.
-        self.reduce_mode = None # The reduce mode that the reduce_result was generated for.
+        self._reduce_result = None # A cached result to avoid recomputing it.
+        self._reduce_mode = None # The reduce mode that the _reduce_result was generated for.
 
     @cached_property
     def hash(self) -> int:
@@ -227,17 +227,17 @@ class Ast:
 
     def reduce(self, mode) -> Ast:
         assert mode in Ast.REDUCE_MODES
-        if self.reduce_result and Ast.REDUCE_MODES[self.reduce_mode] >= Ast.REDUCE_MODES[mode]:
-            return self.reduce_result
+        if self._reduce_result and Ast.REDUCE_MODES[self._reduce_mode] >= Ast.REDUCE_MODES[mode]:
+            return self._reduce_result
 
-        start_ast = self.reduce_result or self
+        start_ast = self._reduce_result or self
         if start_ast is self:
             result = start_ast._reduce(mode)
         else:
             result = start_ast.reduce(mode)
 
-        self.reduce_result = result
-        self.reduce_mode = mode
+        self._reduce_result = result
+        self._reduce_mode = mode
         return result
 
     def _reduce(self, mode) -> Ast:
@@ -554,8 +554,8 @@ class Expr:
         assert type(bindings) is frozendict
         self.ast = ast
         self.bindings = bindings
-        self.pointer = None # May point to another Expr. In that case, self.ast and self.bindings will be set to None.
-        self.substituted_ast = None # A cached result to avoid recomputing it.
+        self._pointer = None # May point to another Expr. In that case, self.ast and self.bindings will be set to None.
+        self._substituted_ast = None # A cached result to avoid recomputing it.
         # Assert that all the ast's free variables are bound in the bindings.
         for free_var in ast.free_vars:
             assert free_var in bindings, 'Unbound variable {!r}'.format(free_var)
@@ -564,12 +564,12 @@ class Expr:
         '''
         Returns the non-pointing Expr that self directly or indirectly points at, or self.
         '''
-        if self.pointer is None:
+        if self._pointer is None:
             return self
-        if self.pointer.pointer is None:
-            return self.pointer
-        result = self.pointer.resolve()
-        self.pointer = result # Compress the chain of pointers to make future resolves faster.
+        if self._pointer._pointer is None:
+            return self._pointer
+        result = self._pointer.resolve()
+        self._pointer = result # Compress the chain of pointers to make future resolves faster.
         return result
 
     def apply(self, arg: Expr) -> Expr:
@@ -591,8 +591,8 @@ class Expr:
         assert type(new_pointee) is Expr
         self.ast = None
         self.bindings = None
-        self.substituted_ast = None
-        self.pointer = new_pointee
+        self._substituted_ast = None
+        self._pointer = new_pointee
 
     def _eval_partially(self):
         '''
@@ -629,9 +629,9 @@ class Expr:
         Returns self.ast with all free variables replaced with their bindings.
         '''
         self = self.resolve()
-        if self.substituted_ast is None:
-            self.substituted_ast = self.ast.substitute_exprs(self.bindings, frozenset({}))
-        return self.substituted_ast
+        if self._substituted_ast is None:
+            self._substituted_ast = self.ast.substitute_exprs(self.bindings, frozenset({}))
+        return self._substituted_ast
 
     def to_code(self, parens = False) -> str:
         return self.to_substituted_ast().to_code(parens)
