@@ -106,33 +106,36 @@ class Ast:
         if self.kind == VARIABLE:
             return hash(self.variable_name)
         elif self.kind == FUNCTION:
-            return hash(('/' + self.variable_name + '.', self.function_body))
+            return hash(('/' + self.variable_name + '.', self.function_body.hash))
         elif self.kind == CALL:
-            return hash((self.function, self.argument))
+            return hash((self.function.hash, self.argument.hash))
         else:
             assert False
 
-    def __hash__(self) -> int:
-        return self.hash
-
-    def __eq__(self, other: object) -> bool:
+    def equals(self, other: object) -> bool:
         if self is other:
             return True
         if not isinstance(other, Ast):
             return False
         if self.kind != other.kind:
             return False
-        if hash(self) != hash(other):
+        if self.hash != other.hash:
             return False
 
         if self.kind == VARIABLE:
             return self.variable_name == other.variable_name
         elif self.kind == FUNCTION:
-            return self.variable_name == other.variable_name and self.function_body == other.function_body
+            return self.variable_name == other.variable_name and self.function_body.equals(other.function_body)
         elif self.kind == CALL:
-            return self.function == other.function and self.argument == other.argument
+            return self.function.equals(other.function) and self.argument.equals(other.argument)
         else:
             assert False
+
+    # def __hash__(self) -> int:
+    #     return self.hash
+
+    # def __eq__(self, other: object) -> bool:
+    #     return self.equals(other)
 
     def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         '''
