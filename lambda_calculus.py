@@ -103,10 +103,10 @@ class Ast:
 
     def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         '''
-        Returns self with self.free_vars().intersection(substitutions.keys()) replaced with their substitutions.
+        Returns self with self.free_vars.intersection(substitutions.keys()) replaced with their substitutions.
         '''
         assert type(substitutions) is frozendict
-        intersection_keys = self.free_vars().intersection(substitutions.keys())
+        intersection_keys = self.free_vars.intersection(substitutions.keys())
         if len(intersection_keys) == 0:
             return self
         if len(intersection_keys) == len(substitutions):
@@ -124,14 +124,14 @@ class Ast:
             return substitutions[self.variable_name]
         elif self.kind == FUNCTION:
             # Note that `substitutions` has already been filtered to only the
-            # self.free_vars(), so it won't include self.variable_name.
+            # self.free_vars, so it won't include self.variable_name.
 
             # Do alpha conversion here if needed.
             # To find an available var name for alpha conversion:
             # Avoid the free vars of all the substitutions.values()
-            # plus the self.free_vars() that won't be substituted.
-            sub_var_names = [ast.free_vars() for ast in substitutions.values()]
-            taken_var_names = self.free_vars() - substitutions.keys()
+            # plus the self.free_vars that won't be substituted.
+            sub_var_names = [ast.free_vars for ast in substitutions.values()]
+            taken_var_names = self.free_vars - substitutions.keys()
             taken_var_names = taken_var_names.union(*sub_var_names)
             new_variable_name = find_available_var_name(self.variable_name, taken_var_names)
             if new_variable_name != self.variable_name:
@@ -208,9 +208,53 @@ class Ast:
         return result
 
     def _reduce(self, mode) -> Ast:
-        # TODO
         assert mode in Ast.REDUCE_MODES
-        raise NotImplementedError('Ast._reduce() is not yet implemented')
+        if mode == 'lazy_full':
+            stop_at_lambda = False
+            proceed_fully = True
+        elif mode == 'lazy_to_lambda_or_full':
+            stop_at_lambda = True
+            proceed_fully = True # Note that stop_at_lambda takes precedence.
+        elif mode == 'lazy_to_lambda':
+            stop_at_lambda = True
+            proceed_fully = False
+        else:
+            assert False
+
+        if self.is_normal_form:
+            return self
+
+        if self.kind == VARIABLE:
+            return self
+        elif self.kind == FUNCTION:
+            if stop_at_lambda or not proceed_fully:
+                return self
+            return Ast(FUNCTION, self.variable_name, self.function_body.reduce(mode))
+        elif self.kind == CALL:
+            if proceed_fully:
+                function = self.function.reduce('lazy_to_lambda_or_full')
+            else:
+                function = self.function.reduce('lazy_to_lambda')
+            if function.kind == FUNCTION:
+                return function.apply(self.argument).reduce(mode)
+            else:
+                if proceed_fully:
+                    return Ast(CALL, function, self.argument.reduce('lazy_full'))
+                else:
+                    return Ast(CALL, function, self.argument)
+        else:
+            assert False
+
+    @cached_property
+    def is_normal_form(self) -> bool:
+        if self.kind == VARIABLE:
+            return True
+        elif self.kind == FUNCTION:
+            return self.function_body.is_normal_form
+        elif self.kind == CALL:
+            return self.function.kind != FUNCTION and self.function.is_normal_form and self.argument.is_normal_form
+        else:
+            assert False
 
     @cached_property
     def free_vars(self) -> frozenset[str]:
