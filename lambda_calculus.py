@@ -270,17 +270,33 @@ class Ast:
     def to_tuple(self):
         return (self.kind, *(arg if type(arg) is str else arg.to_tuple() for arg in self.args))
 
-    def to_code(self, parens = False) -> str:
+    @cached_property
+    def to_code_without_parens(self) -> str:
         if self.kind == VARIABLE:
             return self.variable_name
         elif self.kind == FUNCTION:
-            result = '{}{}.{}'.format(LAMBDA, self.variable_name, self.function_body.to_code(False))
-            return '(' + result + ')' if parens else result
+            return '{}{}.{}'.format(LAMBDA, self.variable_name, self.function_body.to_code(False))
         elif self.kind == CALL:
-            result = '{} {}'.format(self.function.to_code(self.function.kind != CALL), self.argument.to_code(True))
-            return '(' + result + ')' if parens else result
+            return '{} {}'.format(self.function.to_code(self.function.kind != CALL), self.argument.to_code(True))
         else:
             assert False
+
+    @cached_property
+    def to_code_with_parens(self) -> str:
+        if self.kind == VARIABLE:
+            return self.to_code_without_parens
+        elif self.kind == FUNCTION:
+            return '(' + self.to_code_without_parens + ')'
+        elif self.kind == CALL:
+            return '(' + self.to_code_without_parens + ')'
+        else:
+            assert False
+
+    def to_code(self, parens = False) -> str:
+        if parens:
+            return self.to_code_with_parens
+        else:
+            return self.to_code_without_parens
 
 def find_available_var_name(original_var_name: str, taken_var_names: Set[str]) -> str:
     if original_var_name not in taken_var_names:
