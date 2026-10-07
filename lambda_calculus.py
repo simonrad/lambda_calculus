@@ -101,15 +101,38 @@ class Ast:
         self.reduce_result = None # A cached result to avoid recomputing it.
         self.reduce_mode = None # The reduce mode that the reduce_result was generated for.
 
-    # def __hash__(self) -> int:
-    #     return hash(self.to_code_without_parens)
+    @cached_property
+    def hash(self) -> int:
+        if self.kind == VARIABLE:
+            return hash(self.variable_name)
+        elif self.kind == FUNCTION:
+            return hash(('/' + self.variable_name + '.', self.function_body))
+        elif self.kind == CALL:
+            return hash((self.function, self.argument))
+        else:
+            assert False
 
-    # def __eq__(self, other: object) -> bool:
-    #     if self is other:
-    #         return True
-    #     if not isinstance(other, Ast):
-    #         return False
-    #     return self.to_code_without_parens == other.to_code_without_parens
+    def __hash__(self) -> int:
+        return self.hash
+
+    def __eq__(self, other: object) -> bool:
+        if self is other:
+            return True
+        if not isinstance(other, Ast):
+            return False
+        if self.kind != other.kind:
+            return False
+        if hash(self) != hash(other):
+            return False
+
+        if self.kind == VARIABLE:
+            return self.variable_name == other.variable_name
+        elif self.kind == FUNCTION:
+            return self.variable_name == other.variable_name and self.function_body == other.function_body
+        elif self.kind == CALL:
+            return self.function == other.function and self.argument == other.argument
+        else:
+            assert False
 
     def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         '''
