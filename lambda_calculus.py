@@ -101,8 +101,9 @@ class Ast:
 
     def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         '''
-        Returns self with (self.free_vars().intersection(substitutions.keys())) replaced with their substitutions.
+        Returns self with self.free_vars().intersection(substitutions.keys()) replaced with their substitutions.
         '''
+        assert type(substitutions) is frozendict
         intersection_keys = self.free_vars().intersection(substitutions.keys())
         if len(intersection_keys) == 0:
             return self
@@ -178,14 +179,26 @@ class Ast:
         else:
             assert False
 
-    def apply(self, arg: Ast) -> Ast:
-        # TODO
-        raise NotImplementedError('Ast.apply() is not yet implemented')
+    def apply(self, argument: Ast) -> Ast:
+        self = self.reduce('lazy_to_lambda')
+        assert self.kind == FUNCTION, 'Cannot apply a {!r} Ast to an argument'.format(self.kind)
+        return self.function_body.substitute(frozendict({self.variable_name: argument}))
+
+    REDUCE_MODES = {
+            'lazy_full'              : 3, # Don't stop until there are no redexes (reducible expressions) left.
+            'lazy_to_lambda_or_full' : 2, # Stop when the result becomes a lambda expression (i.e. a FUNCTION) or there are no redexes left.
+            'lazy_to_lambda'         : 1, # Stop when the result becomes a lambda expression (i.e. a FUNCTION) or we determine that we cannot get to a lambda expression.
+    }
 
     def reduce(self, mode) -> Ast:
         # TODO
-        assert mode in ('lazy_full', 'lazy_to_lambda')
+        assert mode in Ast.REDUCE_MODES
         raise NotImplementedError('Ast.reduce() is not yet implemented')
+
+    def _reduce(self, mode) -> Ast:
+        # TODO
+        assert mode in Ast.REDUCE_MODES
+        raise NotImplementedError('Ast._reduce() is not yet implemented')
 
     @cached_property
     def free_vars(self) -> frozenset[str]:
