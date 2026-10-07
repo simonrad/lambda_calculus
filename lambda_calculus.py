@@ -98,6 +98,8 @@ class Ast:
             assert False
         self.kind = kind
         self.args = args
+        self.reduce_result = None # A cached result to avoid recomputing it.
+        self.reduce_mode = None # The reduce mode that the reduce_result was generated for.
 
     def substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         '''
@@ -191,9 +193,19 @@ class Ast:
     }
 
     def reduce(self, mode) -> Ast:
-        # TODO
         assert mode in Ast.REDUCE_MODES
-        raise NotImplementedError('Ast.reduce() is not yet implemented')
+        if self.reduce_result and Ast.REDUCE_MODES[self.reduce_mode] >= Ast.REDUCE_MODES[mode]:
+            return self.reduce_result
+
+        start_ast = self.reduce_result or self
+        if start_ast is self:
+            result = start_ast._reduce(mode)
+        else:
+            result = start_ast.reduce(mode)
+
+        self.reduce_result = result
+        self.reduce_mode = mode
+        return result
 
     def _reduce(self, mode) -> Ast:
         # TODO
