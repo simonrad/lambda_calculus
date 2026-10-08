@@ -130,7 +130,7 @@ class Ast:
 
     # def __hash__(self) -> int:
     #     return self.hash
-
+    #
     # def __eq__(self, other: object) -> bool:
     #     return self.equals(other)
 
@@ -213,6 +213,22 @@ class Ast:
             return Ast(CALL, *substituted_args)
         else:
             assert False
+
+    def make_expr(self, bindings: frozendict[str, Expr]) -> Expr:
+        return Expr(self, bindings)
+
+    # def make_expr(self, bindings: frozendict[str, Expr]) -> Expr:
+    #     assert type(bindings) is frozendict
+    #     intersection_keys = self.free_vars.intersection(bindings.keys())
+    #     if len(intersection_keys) == len(bindings):
+    #         intersection_bindings = bindings
+    #     else:
+    #         intersection_bindings = frozendict({k: bindings[k] for k in intersection_keys})
+    #     return self._make_expr(intersection_bindings)
+    #
+    # @memoize_method(maxsize = 256)
+    # def _make_expr(self, bindings: frozendict[str, Expr]) -> Expr:
+    #     return Expr(self, bindings)
 
     def apply(self, argument: Ast) -> Ast:
         self = self.reduce('lazy_to_lambda')
@@ -582,10 +598,7 @@ class Expr:
 
         new_bindings = self.bindings.set(self.ast.variable_name, arg)
 
-        return Expr(
-            ast = self.ast.function_body,
-            bindings = new_bindings,
-        )
+        return self.ast.function_body.make_expr(new_bindings)
 
     def _set_pointer(self, new_pointee: Expr):
         assert type(new_pointee) is Expr
@@ -607,7 +620,7 @@ class Expr:
             self._set_pointer(binding)
         elif self.ast.kind == CALL:
             arg_exprs = tuple(
-                Expr(arg_ast, self.bindings)
+                arg_ast.make_expr(self.bindings)
                 for arg_ast in self.ast.args
             )
             assert len(arg_exprs) == 2
