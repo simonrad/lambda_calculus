@@ -148,7 +148,7 @@ class Ast:
             intersection_subs = frozendict({k: substitutions[k] for k in intersection_keys})
         return self._substitute(intersection_subs)
 
-    @memoize_method(maxsize = 512)
+    # @memoize_method(maxsize = 512)
     def _substitute(self, substitutions: frozendict[str, Ast]) -> Ast:
         assert type(substitutions) is frozendict
         if self.kind == VARIABLE:
