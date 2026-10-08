@@ -570,6 +570,8 @@ class Expr:
         assert type(bindings) is frozendict
         self.ast = ast
         self.bindings = bindings
+        self.original_ast = ast
+        self.original_bindings = bindings
         self._pointer = None # May point to another Expr. In that case, self.ast and self.bindings will be set to None.
         self._substituted_ast = None # A cached result to avoid recomputing it.
         # Assert that all the ast's free variables are bound in the bindings.
@@ -636,6 +638,14 @@ class Expr:
         while self.resolve().ast.kind != FUNCTION:
             self._eval_partially()
         return self.resolve()
+
+    @cached_property
+    def hash(self) -> int:
+        bindings_tuple = tuple(
+            (k, v_expr.hash)
+            for (k, v_expr) in sorted(self.original_bindings.items())
+        )
+        return hash((self.original_ast.hash,) + bindings_tuple)
 
     def to_substituted_ast(self) -> Ast:
         '''
