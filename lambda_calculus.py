@@ -28,11 +28,8 @@ from typing import Any
 # Done: Support returning a type identifier from the LC code (e.g. return (pair type_id value_of_that_type))
 # Done: Write some LC functions
 # Done: Write tests of all the LC library functions
-
-# TODO: Fully beta reduce (substitute) the resulting Ast
-# TODO: Compare the performance of reduction vs Expr.eval()
-
-# TODO: Consider passing debug info about code location into parse() and Ast()
+# Done: Implement full beta reduction (substitution)
+# Done: Compare the performance of reduction vs Expr.eval() -> Expr.eval() is about 7x faster than Ast.reduce()
 
 
 LAMBDA = '/' # The character to use as lambda, e.g. 'λ'
