@@ -1138,6 +1138,7 @@ def run_tests():
         (wrap_prefix_lc + 'is_prime_alt 96', as_bool, False),
         (wrap_prefix_lc + 'is_prime_alt 97', as_bool, True),
         (wrap_prefix_lc + 'nth_of 24 0 infinite_primes_seq', as_binary_natural_number, 97),
+        (wrap_prefix_lc + 'nth_of 3 true (nth_of 24 255 infinite_primes_seq)', as_bool, False),
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 10 infinite_primes_seq)', as_type_tagged, (True, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29])),
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 15 (filter (infinite_incr_seq 0) /item. head_of item false))', as_type_tagged, (True, list(range(1, 30, 2)))),
         (wrap_prefix_lc + 'type_list_of type_bnn (first_n_of 15 (flat_map (infinite_incr_seq 0) /item. if_then_else (head_of item false) [] [item]))', as_type_tagged, (True, list(range(0, 30, 2)))),
