@@ -621,6 +621,8 @@ class Expr:
             assert binding is not None, 'Unbound variable {!r}'.format(self.ast.variable_name)
             self._set_pointer(binding)
         elif self.ast.kind == CALL:
+            global num_eval_operations_performed
+            num_eval_operations_performed += 1
             arg_exprs = tuple(
                 arg_ast.make_expr(self.bindings)
                 for arg_ast in self.ast.args
@@ -658,6 +660,8 @@ class Expr:
 
     def to_code(self, parens = False) -> str:
         return self.to_substituted_ast().to_code(parens)
+
+num_eval_operations_performed = 0
 
 
 def make_ast_or_expr(type_to_make: type):
@@ -1175,12 +1179,24 @@ def run_tests():
     print('Eval test cases:')
     for (input_lc_code, transform_func, expected_output) in eval_test_cases:
         start_time = time.time()
-        actual_output = transform_func(eval_lc(input_lc_code))
+        global num_eval_operations_performed
+        num_eval_operations_performed = 0
+        expr = eval_lc(input_lc_code)
+        num_initial_eval_ops = num_eval_operations_performed
+        actual_output = transform_func(expr)
         elapsed = time.time() - start_time
         test_does_pass = actual_output == expected_output
-        print(' ', 'Pass' if test_does_pass else 'FAIL', ' ',
-              input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
-              ' -> ', expected_output, ' ({} ms)'.format(int(elapsed * 1000)))
+        print(
+            ' ',
+            'Pass' if test_does_pass else 'FAIL',
+            '{:>4} ms'.format(int(elapsed * 1000)),
+            '{:>6} ops'.format(num_eval_operations_performed),
+            '{:>6} ({:>3}%) 1st eval ops'.format(num_initial_eval_ops, int(100 * num_initial_eval_ops / num_eval_operations_performed)),
+            ' ',
+            input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
+            ' -> ',
+            expected_output,
+        )
         if not test_does_pass:
             print('    expected:', expected_output)
             print('    actual:  ', actual_output)
