@@ -662,6 +662,7 @@ class Expr:
         return self.to_substituted_ast().to_code(parens)
 
 num_eval_operations_performed = 0
+list_of_num_eval_ops_performed = []
 
 
 def make_ast_or_expr(type_to_make: type):
@@ -680,12 +681,16 @@ def as_bool(lc_value: Ast | Expr) -> bool:
     Interprets the lc_value as a boolean.
     (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Church_Booleans )
     '''
+    starting_ops = num_eval_operations_performed
+
     make_arg = make_ast_or_expr(type(lc_value))
 
     true_lc = '/_true_x./y._true_x'
     false_lc = '/_false_x./y.y'
 
     result_lc = lc_value.apply(make_arg(true_lc)).apply(make_arg(false_lc)).to_code()
+
+    list_of_num_eval_ops_performed.append(num_eval_operations_performed - starting_ops)
 
     if result_lc == true_lc:
         return True
@@ -700,6 +705,8 @@ def as_optional(lc_value: Ast | Expr) -> (Ast | Expr | NoneType):
     (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Optional_values )
     If the lc_value is nil, returns None.
     '''
+    starting_ops = num_eval_operations_performed
+
     make_arg = make_ast_or_expr(type(lc_value))
 
     param_name = '__very_special_nil_indicator_value'
@@ -707,6 +714,8 @@ def as_optional(lc_value: Ast | Expr) -> (Ast | Expr | NoneType):
 
     result = lc_value.apply(make_arg(nil_result_lc)).apply(make_arg('/x.x'))
     result_ast = result.reduce('lazy_to_lambda') if isinstance(result, Ast) else result.eval().ast
+
+    list_of_num_eval_ops_performed.append(num_eval_operations_performed - starting_ops)
 
     if result_ast.kind == FUNCTION and result_ast.variable_name == param_name and result.to_code() == nil_result_lc:
         # The lc_value is nil.
@@ -720,6 +729,8 @@ def as_pair(lc_value: Ast | Expr) -> tuple[Ast | Expr, Ast | Expr]:
     Interprets the lc_value as a pair.
     (As defined here: https://en.wikipedia.org/wiki/Church_encoding#Church_pairs )
     '''
+    starting_ops = num_eval_operations_performed
+
     make_arg = make_ast_or_expr(type(lc_value))
 
     true_lc = '/_true_x./y._true_x'
@@ -727,6 +738,8 @@ def as_pair(lc_value: Ast | Expr) -> tuple[Ast | Expr, Ast | Expr]:
 
     first  = lc_value.apply(make_arg(true_lc))
     second = lc_value.apply(make_arg(false_lc))
+
+    list_of_num_eval_ops_performed.append(num_eval_operations_performed - starting_ops)
 
     return (first, second)
 
@@ -762,7 +775,11 @@ def as_type_tagged(lc_value: Ast | Expr) -> tuple[bool, Any]:
     Interprets the lc_value as a type_tag_and_val_pair if possible.
     Returns (success, interpreted_value) where success is True iff the lc_value and all sub-values are type-tagged.
     '''
+    starting_ops = num_eval_operations_performed
+
     lc_value_ast = lc_value.reduce('lazy_to_lambda') if isinstance(lc_value, Ast) else lc_value.eval().ast
+
+    list_of_num_eval_ops_performed.append(num_eval_operations_performed - starting_ops)
 
     if not (lc_value_ast.kind == FUNCTION and lc_value_ast.variable_name == '_type_tag_and_val_pair_f'):
         return (False, NOT_TYPE_TAGGED)
@@ -1181,6 +1198,8 @@ def run_tests():
         start_time = time.time()
         global num_eval_operations_performed
         num_eval_operations_performed = 0
+        global list_of_num_eval_ops_performed
+        list_of_num_eval_ops_performed = [0]
         expr = eval_lc(input_lc_code)
         num_initial_eval_ops = num_eval_operations_performed
         actual_output = transform_func(expr)
@@ -1192,6 +1211,7 @@ def run_tests():
             '{:>4} ms'.format(int(elapsed * 1000)),
             '{:>6} ops'.format(num_eval_operations_performed),
             '{:>6} ({:>3}%) 1st eval ops'.format(num_initial_eval_ops, int(100 * num_initial_eval_ops / num_eval_operations_performed)),
+            '{:>6} ({:>3}%) max transform ops'.format(max(list_of_num_eval_ops_performed), int(100 * max(list_of_num_eval_ops_performed) / num_eval_operations_performed)),
             ' ',
             input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
             ' -> ',
