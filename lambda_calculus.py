@@ -1194,6 +1194,11 @@ def run_tests():
     #         )
 
     print('Eval test cases:')
+    print('       Total time taken')
+    print('       |       Total number of operations')
+    print('       |       |          % of operations in the initial eval()')
+    print('       |       |          |    % of operations in the most expensive bit extraction')
+    print('       _______ __________ ____ ___')
     for (input_lc_code, transform_func, expected_output) in eval_test_cases:
         start_time = time.time()
         global num_eval_operations_performed
@@ -1208,10 +1213,15 @@ def run_tests():
         print(
             ' ',
             'Pass' if test_does_pass else 'FAIL',
+            # Total time & number of operations:
             '{:>4} ms'.format(int(elapsed * 1000)),
             '{:>6} ops'.format(num_eval_operations_performed),
-            '{:>6} ({:>3}%) 1st eval ops'.format(num_initial_eval_ops, int(100 * num_initial_eval_ops / num_eval_operations_performed)),
-            '{:>6} ({:>3}%) max transform ops'.format(max(list_of_num_eval_ops_performed), int(100 * max(list_of_num_eval_ops_performed) / num_eval_operations_performed)),
+            # Number of operations in the initial eval():
+            # '{:>6} ops'.format(num_initial_eval_ops),
+            '{:>3}%'.format(int(100 * num_initial_eval_ops / num_eval_operations_performed)),
+            # Number of operations in the most expensive bit extraction in the transform_func:
+            # '{:>6} ops'.format(max(list_of_num_eval_ops_performed)),
+            '{:>2}%'.format(int(100 * max(list_of_num_eval_ops_performed) / num_eval_operations_performed)),
             ' ',
             input_lc_code.replace(wrap_prefix_lc, '').replace('\n', '\n' + ' '*9),
             ' -> ',
